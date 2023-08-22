@@ -40,25 +40,52 @@ def act(self, game_state: dict) -> str:
         return np.random.choice(d.ACTIONS, p=[.2, .2, .2, .2, .1, .1])
 
     self.logger.debug("Querying model for action.")
-    # probabilistic choice of action
-	# TODO: code line aus anderem Github repo kopiert, funktion muss noch verstanden werden und bissel abändern oder löschen falls nicht verwedent!
-    #next_action = np.random.choice(ACTIONS, p=torch_functions.softmax(self.model.forward(game_state), dim=0).detach().numpy())
-    
-	# choose action with maximum reward
-    next_action = d.ACTIONS[np.argmax(self.model.get_values_for_state(game_state))]
-    
+    state = state_to_features(game_state)
+    next_action = self.model.get_action_for_state(state)
     return next_action
 
 def state_to_features(game_state: dict) -> int:
     """
     Converts the game state into a number
-    TODO: Implement this using dictionary or something
-
     :param game_state:  A dictionary describing the current game board.
     :return: int
     """
     # This is the dict before the game begins and after it ends
     if game_state is None:
         return None
+    
+    round = game_state["round"]
+    step = game_state["step"]
+    bombs = game_state["bombs"]
+    explosions = game_state["explosion_map"]
+    coins = game_state["coins"]
+    player = game_state["self"]
+    enemies = game_state["others"]
+    
+	
+    
+	#to difficult for now, keep for later
+    """
+    arena = np.zeros((d.ARENA_LENGTH, d.ARENA_WIDTH))
+
+    round = game_state["round"]
+    step = game_state["step"]
+    
+    field = game_state["field"]
+    field = [d.list_of_blocks.EMPTY.value if x == 0 else 
+             d.list_of_blocks.BRICK.value if x == -1 else
+             d.list_of_blocks.CRATE.value
+             for x in field]
+    bombs = game_state["bombs"]
+    explosions = game_state["explosion_map"]
+    coins = game_state["coins"]
+    player = game_state["self"]
+    enemies = game_state["others"]
+    
+    for i in range(0,d.ARENA_LENGTH):
+         for j in range(0,d.ARENA_WIDTH):
+              arena[i][j] = field[i][j]
+    """
+              
 
     return 1
