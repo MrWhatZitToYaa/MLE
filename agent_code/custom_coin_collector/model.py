@@ -7,28 +7,38 @@ import definitions as d
 # Note ChatGPT code. Muss angepasst werden für unseren Verwendungsfall aber ich bin jetzt zu müde also lieber morgen
 
 class QLearning:
-    def __init__(self, num_states, num_actions, learning_rate, discount_factor, exploration_prob):
+    def __init__(self, num_states, num_actions, learning_rate, discount_factor):
         self.num_states = num_states
         self.num_actions = num_actions
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
-        self.exploration_prob = exploration_prob
 
         self.q_table = np.zeros((num_states, num_actions))
 
-    def choose_action(self, state):
-        if np.random.uniform(0, 1) < self.exploration_prob:
-            return np.random.choice(self.num_actions)
-        else:
-            return np.argmax(self.q_table[state, :])
+    def setup_training(self):
+        return
+	
+    def get_values_for_state(self, state):
+        """
+        returns values of the actions in a given state
+        """
+        return self.q_table[state, :]
 
     def update_q_table(self, state, action, reward, next_state):
+        """
+        Iterative approach to update the q-table
+        TODO: Verify this is correct
+        """
         best_next_action = np.argmax(self.q_table[next_state, :])
         self.q_table[state, action] += self.learning_rate * (
             reward + self.discount_factor * self.q_table[next_state, best_next_action] - self.q_table[state, action]
         )
 
     def decay_exploration_prob(self):
+        """
+        Reduces the exploration probability for each traning round gradually
+        TODO: ChatGPT proposed this, discuss usefullness and if we wanna do this
+        """
         self.exploration_prob *= 0.95
 
     def train(self, num_episodes, max_steps_per_episode, env):

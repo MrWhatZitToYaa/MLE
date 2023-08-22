@@ -6,6 +6,7 @@ import pickle
 import torch.nn.functional as torch_functions
 
 import definitions as d
+import model as m
 
 def setup(self):
     """
@@ -16,7 +17,7 @@ def setup(self):
         self.logger.info("Setting up model from scratch.")
         weights = np.random.rand(len(d.ACTIONS))
         # TODO: diese Funktion implementieren
-        self.model = simple_QLearn()
+        self.model = m.QLearning(d.NUM_OF_STATES, d.NUM_OF_ACTIONS, d.learning_rate, d.discount_factor)
     else:
         self.logger.info("Loading model from saved state.")
         with open("my-saved-model.pt", "rb") as file:
@@ -33,8 +34,7 @@ def act(self, game_state: dict) -> str:
     :return: The action to take as a string.
     """
     # Exploration vs exploitation
-    random_prob = .1
-    if self.train and random.random() < random_prob:
+    if self.train and random.random() < d.exploration_prob:
         self.logger.debug("Choosing action purely at random.")
         # 80%: walk in any direction. 10% wait. 10% bomb.
         return np.random.choice(d.ACTIONS, p=[.2, .2, .2, .2, .1, .1])
@@ -45,4 +45,20 @@ def act(self, game_state: dict) -> str:
     #next_action = np.random.choice(ACTIONS, p=torch_functions.softmax(self.model.forward(game_state), dim=0).detach().numpy())
     
 	# choose action with maximum reward
-    next_action = d.ACTIONS[np.argmax(self.model.forward(game_state))]
+    next_action = d.ACTIONS[np.argmax(self.model.get_values_for_state(game_state))]
+    
+    return next_action
+
+def state_to_features(game_state: dict) -> int:
+    """
+    Converts the game state into a number
+    TODO: Implement this using dictionary or something
+
+    :param game_state:  A dictionary describing the current game board.
+    :return: int
+    """
+    # This is the dict before the game begins and after it ends
+    if game_state is None:
+        return None
+
+    return 1
