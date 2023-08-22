@@ -5,8 +5,8 @@ import random
 import pickle
 import torch.nn.functional as torch_functions
 
-import definitions as d
-import model as m
+from .definitions import *
+from .model import *
 
 def setup(self):
     """
@@ -15,9 +15,9 @@ def setup(self):
     """
     if self.train or not os.path.isfile("my-saved-model.pt"):
         self.logger.info("Setting up model from scratch.")
-        weights = np.random.rand(len(d.ACTIONS))
+        weights = np.random.rand(len(ACTIONS))
         # TODO: diese Funktion implementieren
-        self.model = m.QLearning(d.NUM_OF_STATES, d.NUM_OF_ACTIONS, d.learning_rate, d.discount_factor)
+        self.model = QLearning(NUM_OF_STATES, NUM_OF_ACTIONS, learning_rate, discount_factor)
     else:
         self.logger.info("Loading model from saved state.")
         with open("my-saved-model.pt", "rb") as file:
@@ -34,10 +34,10 @@ def act(self, game_state: dict) -> str:
     :return: The action to take as a string.
     """
     # Exploration vs exploitation
-    if self.train and random.random() < d.exploration_prob:
+    if self.train and random.random() < exploration_prob:
         self.logger.debug("Choosing action purely at random.")
         # 80%: walk in any direction. 10% wait. 10% bomb.
-        return np.random.choice(d.ACTIONS, p=[.2, .2, .2, .2, .1, .1])
+        return np.random.choice(ACTIONS, p=[.2, .2, .2, .2, .1, .1])
 
     self.logger.debug("Querying model for action.")
     state = state_to_features(game_state)
@@ -63,18 +63,19 @@ def state_to_features(game_state: dict) -> int:
     player = game_state["self"]
     enemies = game_state["others"]
     
-    round = [round]
-    step = [step]
-    field = field.flatten().tolist()
-    bombs = np.array([np.array([i[0][0], i[0][1], i[1]]) for i in bombs]).flatten().tolist()
-    explosions = explosions.flatten().tolist()
-    coins = np.array([np.array([i[0], i[1]]) for i in coins]).flatten().tolist()
-    player = [player[0], player[1], player[2], player[3][0],player[3][1]]
+    round = tuple([round])
+    step = tuple([step])
+    field = tuple(field.flatten())
+    bombs = tuple(np.array([np.array([i[0][0], i[0][1], i[1]]) for i in bombs]).flatten())
+    explosions = tuple(explosions.flatten())
+    coins = tuple(np.array([np.array([i[0], i[1]]) for i in coins]).flatten())
+    player = (player[0], player[1], player[2], player[3][0],player[3][1])
     enemies = [np.array([i[0], i[1], i[2], i[3][0],i[3][1]]) for i in enemies]
     enemies_flat = []
     for sublist in enemies:
          for item in sublist:
               enemies_flat.append(item)
+    enemies_flat = tuple(enemies_flat)
               
     total_list = round + step + field + bombs + explosions + coins + player + enemies_flat 
     

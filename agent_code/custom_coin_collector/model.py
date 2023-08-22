@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-import definitions as d
+from .definitions import *
 
 class QLearning:
     def __init__(self, num_states, num_actions, learning_rate, discount_factor):
@@ -14,18 +14,19 @@ class QLearning:
 
         self.q_table = {}
         
-    def action_to_actionNum(action):
+    def action_to_actionNum(self, action):
         """
         Converts action string to action number
         """
-        return d.ACTIONS.index(action)
+        return ACTIONS.index(action)
 	
     def get_values_for_state(self, state):
         """
         Returns values of the actions in a given state if state exists
         Otherwise returns array of zeros
         """
-        return self.q_table.get(state, [0.0] * d.NUM_OF_ACTIONS)
+        q_table = self.q_table.get(state, [0.0] * NUM_OF_ACTIONS)
+        return q_table
     
     def get_action_for_state(self, state):
         """
@@ -34,24 +35,38 @@ class QLearning:
         # probabilistic choice of action
 		# TODO: code line aus anderem Github repo kopiert, funktion muss noch verstanden werden und bissel abändern oder löschen falls nicht verwedent!
     	#next_action = np.random.choice(ACTIONS, p=torch_functions.softmax(self.model.forward(game_state), dim=0).detach().numpy())
-    
+
         # choose action with maximum reward
-        next_action = d.ACTIONS[np.argmax(self.model.get_values_for_state(state))]
+        next_action = ACTIONS[np.argmax(self.get_values_for_state(state))]
         return next_action
 
     def update_q_table(self, old_state, action, reward, next_state):
         """
         Iterative approach to update the q-table
-        TODO: Verify this is correct
+        TODO: Verify this is correct AND CHECK WHY THE FIRST COMMENTED OUT VERSION IS NOT WORKING EVEN THOUGH SAME CODE
         """
-        best_next_action = self.model.get_action_for_state(next_state)
-        best_next_actionNum = self.model.action_to_actionNum(best_next_action)
-        actionNum = self.model.action_to_actionNum(action)
+        """
+        best_next_action = self.get_action_for_state(next_state)
+        best_next_actionNum = self.action_to_actionNum(best_next_action)
+        qValue_best_next_action = self.get_values_for_state(next_state)
+        actionNum = self.action_to_actionNum(action)
         
-        old_q_value = self.model.get_values_for_state(old_state)[actionNum]
-        new_q_value = old_q_value + self.learning_rate * (reward + self.discount_factor * self.q_table[next_state][best_next_action] - old_q_value)
+        old_q_value = self.get_values_for_state(old_state)[actionNum]
+        new_q_value = old_q_value + self.learning_rate * (reward + self.discount_factor * self.q_table[next_state][best_next_actionNum] - old_q_value)
         
-        self.q_table[next_state][action] = new_q_value
+        self.q_table[old_state][actionNum] = new_q_value
+        """
+        qValue_best_next_action = self.q_table.get(next_state, [0.0] * NUM_OF_ACTIONS)
+        best_next_action = ACTIONS[np.argmax(qValue_best_next_action)]
+        best_next_actionNum = self.action_to_actionNum(best_next_action)
+        actionNum = self.action_to_actionNum(action)
+        
+        old_q_value = self.q_table.get(old_state, [0.0] * NUM_OF_ACTIONS)[actionNum]
+        new_q_value = old_q_value + self.learning_rate * (reward + self.discount_factor * qValue_best_next_action[best_next_actionNum] - old_q_value)
+        
+        if old_state not in self.q_table:
+            self.q_table[old_state] = [0.0] * self.num_actions
+        self.q_table[old_state][actionNum] = new_q_value
 
     def decay_exploration_prob(self):
         """
@@ -63,7 +78,7 @@ class QLearning:
     def train(self, old_state, action, reward, next_state):
         total_reward = 0
         
-        action = self.model.get_action_for_state(old_state)
+        action = self.get_action_for_state(old_state)
         self.update_q_table(old_state, action, reward, next_state)
         
         total_reward += reward
@@ -71,20 +86,3 @@ class QLearning:
         
         #self.decay_exploration_prob()
         
-        print(f"Total Reward: {total_reward}")
-
-# Example usage
-if __name__ == "__main__":
-    num_states = 16
-    num_actions = 4
-    learning_rate = 0.1
-    discount_factor = 0.99
-    exploration_prob = 1.0
-
-    q_learning_agent = QLearning(num_states, num_actions, learning_rate, discount_factor, exploration_prob)
-
-    num_episodes = 1000
-    max_steps_per_episode = 100
-    env = YourEnvironment()
-
-    q_learning_agent.train(num_episodes, max_steps_per_episode, env)
