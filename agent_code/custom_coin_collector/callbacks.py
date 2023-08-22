@@ -56,22 +56,35 @@ def state_to_features(game_state: dict) -> int:
     
     round = game_state["round"]
     step = game_state["step"]
+    field = game_state["field"]
     bombs = game_state["bombs"]
     explosions = game_state["explosion_map"]
     coins = game_state["coins"]
     player = game_state["self"]
     enemies = game_state["others"]
     
-	
+    round = [round]
+    step = [step]
+    field = field.flatten().tolist()
+    bombs = np.array([np.array([i[0][0], i[0][1], i[1]]) for i in bombs]).flatten().tolist()
+    explosions = explosions.flatten().tolist()
+    coins = np.array([np.array([i[0], i[1]]) for i in coins]).flatten().tolist()
+    player = [player[0], player[1], player[2], player[3][0],player[3][1]]
+    enemies = [np.array([i[0], i[1], i[2], i[3][0],i[3][1]]) for i in enemies]
+    enemies_flat = []
+    for sublist in enemies:
+         for item in sublist:
+              enemies_flat.append(item)
+              
+    total_list = round + step + field + bombs + explosions + coins + player + enemies_flat 
     
-	#to difficult for now, keep for later
+	#to difficult for now maybe even unessecary, keep for later
     """
     arena = np.zeros((d.ARENA_LENGTH, d.ARENA_WIDTH))
 
     round = game_state["round"]
     step = game_state["step"]
     
-    field = game_state["field"]
     field = [d.list_of_blocks.EMPTY.value if x == 0 else 
              d.list_of_blocks.BRICK.value if x == -1 else
              d.list_of_blocks.CRATE.value
@@ -86,6 +99,5 @@ def state_to_features(game_state: dict) -> int:
          for j in range(0,d.ARENA_WIDTH):
               arena[i][j] = field[i][j]
     """
-              
-
-    return 1
+    
+    return total_list
