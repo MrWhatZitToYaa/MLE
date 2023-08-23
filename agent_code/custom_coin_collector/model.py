@@ -86,5 +86,5 @@ class QLearning:
         total_reward += reward
         state = next_state
         
-        #self.decay_exploration_prob()
+        self.decay_exploration_prob()
         
