@@ -6,11 +6,12 @@ import torch.optim as optim
 from .definitions import *
 
 class QLearning:
-    def __init__(self, num_states, num_actions, learning_rate, discount_factor):
+    def __init__(self, num_states, num_actions, learning_rate, discount_factor, exploration_prob):
         self.num_states = num_states
         self.num_actions = num_actions
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
+        self.exploration_prob = exploration_prob
 
         self.q_table = {}
         
