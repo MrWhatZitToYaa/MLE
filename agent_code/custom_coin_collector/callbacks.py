@@ -18,7 +18,7 @@ def setup(self):
         self.logger.info("Setting up model from scratch.")
         weights = np.random.rand(len(ACTIONS))
         # TODO: diese Funktion implementieren
-        self.model = QLearning(NUM_OF_STATES, NUM_OF_ACTIONS, learning_rate, discount_factor, EXPLORATION_PROBABIOLITY)
+        self.model = QLearning(NUM_OF_STATES, NUM_OF_ACTIONS, LEARNING_RATE, DISCOUNT_FACTOR, EXPLORATION_PROBABILITY)
     else:
         self.logger.info("Loading model from saved state.")
         with open("my-saved-model.pt", "rb") as file:

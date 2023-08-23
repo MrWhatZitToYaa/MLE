@@ -25,6 +25,6 @@ class list_of_blocks(Enum):
     BOMB_TICK1 =	9
     BOMB_TICK2 =	10
 
-learning_rate = 0.1
-discount_factor = 0.99
-EXPLORATION_PROBABIOLITY = 0.2
+LEARNING_RATE = 0.1
+DISCOUNT_FACTOR = 0.99
+EXPLORATION_PROBABILITY = 0.2
