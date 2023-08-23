@@ -2,7 +2,7 @@ from enum import Enum
 
 ACTIONS = ['UP', 'RIGHT', 'DOWN', 'LEFT', 'WAIT', 'BOMB']
 NUM_OF_ACTIONS = len(ACTIONS)
-PROBABILITIES_FOR_ACTIONS = [.2, .2, .2, .2, .1, .1]
+PROBABILITIES_FOR_ACTIONS = [.2, .2, .2, .2, .2, .0]
 
 # arena is 16 x 16 and each pixel can be occupied by 9 possible blocks
 ARENA_LENGTH = 16
