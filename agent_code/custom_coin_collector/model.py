@@ -6,13 +6,14 @@ import torch.optim as optim
 from .definitions import *
 
 class QLearning:
-    def __init__(self, num_states, num_actions, learning_rate, discount_factor, exploration_prob):
+    def __init__(self, num_states, num_actions, learning_rate, discount_factor, EPSILON_DECAY):
         self.num_states = num_states
         self.num_actions = num_actions
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
-        self.exploration_prob = exploration_prob
+	self.epsilon_decay = EPSILON_DECAY
 
+	self.exploration_prob = 1
         self.q_table = {}
         
     def action_to_actionNum(self, action):
@@ -74,7 +75,7 @@ class QLearning:
         Reduces the exploration probability for each traning round gradually
         TODO: ChatGPT proposed this, discuss usefullness and if we wanna do this
         """
-        self.exploration_prob *= 0.95
+        self.exploration_prob *= epsilon_decay
 
     def train(self, old_state, action, reward, next_state):
         total_reward = 0
