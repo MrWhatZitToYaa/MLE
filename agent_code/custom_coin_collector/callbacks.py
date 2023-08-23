@@ -18,7 +18,7 @@ def setup(self):
         self.logger.info("Setting up model from scratch.")
         weights = np.random.rand(len(ACTIONS))
         # TODO: diese Funktion implementieren
-        self.model = QLearning(NUM_OF_STATES, NUM_OF_ACTIONS, learning_rate, discount_factor, exploration_prob)
+        self.model = QLearning(NUM_OF_STATES, NUM_OF_ACTIONS, learning_rate, discount_factor, EXPLORATION_PROBABIOLITY)
     else:
         self.logger.info("Loading model from saved state.")
         with open("my-saved-model.pt", "rb") as file:
@@ -35,7 +35,7 @@ def act(self, game_state: dict) -> str:
     :return: The action to take as a string.
     """
     # Exploration vs exploitation
-    if self.train and random.random() < exploration_prob:
+    if self.train and random.random() < self.model.exploration_prob:
         self.logger.debug("Choosing action purely at random.")
         # 80%: walk in any direction. 10% wait. 10% bomb.
         return np.random.choice(ACTIONS, p=PROBABILITIES_FOR_ACTIONS)

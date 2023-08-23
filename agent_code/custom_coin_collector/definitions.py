@@ -27,4 +27,4 @@ class list_of_blocks(Enum):
 
 learning_rate = 0.1
 discount_factor = 0.99
-exploration_prob = 0.2
+EXPLORATION_PROBABIOLITY = 0.2
