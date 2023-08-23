@@ -11,9 +11,9 @@ class QLearning:
         self.num_actions = num_actions
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
-	    
-	self.total_reward = 0
-	self.exploration_prob = 1
+        
+        self.total_reward = 0
+        self.exploration_prob = 1
         self.q_table = {}
         
     def action_to_actionNum(self, action):
