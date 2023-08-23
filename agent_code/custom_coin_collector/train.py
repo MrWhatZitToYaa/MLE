@@ -82,25 +82,25 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
     Returns total reward for a sequence of events
     """
     rewards = {
-        event.MOVED_LEFT: 5,
-        event.MOVED_RIGHT: 5,
-        event.MOVED_UP: 5,
-        event.MOVED_DOWN: 5,
-        event.WAITED: -5,
-        event.INVALID_ACTION: -10,
+        event.MOVED_LEFT: -1,
+        event.MOVED_RIGHT: -1,
+        event.MOVED_UP: -1,
+        event.MOVED_DOWN: -1,
+        event.WAITED: -10,
+        event.INVALID_ACTION: -20,
         
-        event.BOMB_DROPPED: 0,
+        event.BOMB_DROPPED: -100,
         event.BOMB_EXPLODED: 0,
         
         event.CRATE_DESTROYED: 5,
-        event.COIN_FOUND: 1,
-		event.COIN_COLLECTED: 10,
+        event.COIN_FOUND: 10,
+		event.COIN_COLLECTED: 100,
         
         event.KILLED_OPPONENT: 0,
         event.KILLED_SELF: -100,
         
-		event.GOT_KILLED: -50,
-        event.OPPONENT_ELIMINATED: -2,
+		event.GOT_KILLED: -500,
+        event.OPPONENT_ELIMINATED: 200,
 		event.SURVIVED_ROUND: 50,
     }
     

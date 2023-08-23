@@ -7,6 +7,7 @@ import torch.nn.functional as torch_functions
 
 from .definitions import *
 from .model import *
+from .state_to_feature import state_to_features
 
 def setup(self):
     """
@@ -37,68 +38,11 @@ def act(self, game_state: dict) -> str:
     if self.train and random.random() < exploration_prob:
         self.logger.debug("Choosing action purely at random.")
         # 80%: walk in any direction. 10% wait. 10% bomb.
-        return np.random.choice(ACTIONS, p=[.2, .2, .2, .2, .1, .1])
+        return np.random.choice(ACTIONS, p=PROBABILITIES_FOR_ACTIONS)
 
     self.logger.debug("Querying model for action.")
     state = state_to_features(game_state)
     next_action = self.model.get_action_for_state(state)
     return next_action
 
-def state_to_features(game_state: dict) -> int:
-    """
-    Converts the game state into a number
-    :param game_state:  A dictionary describing the current game board.
-    :return: int
-    """
-    # This is the dict before the game begins and after it ends
-    if game_state is None:
-        return None
-    
-    round = game_state["round"]
-    step = game_state["step"]
-    field = game_state["field"]
-    bombs = game_state["bombs"]
-    explosions = game_state["explosion_map"]
-    coins = game_state["coins"]
-    player = game_state["self"]
-    enemies = game_state["others"]
-    
-    round = tuple([round])
-    step = tuple([step])
-    field = tuple(field.flatten())
-    bombs = tuple(np.array([np.array([i[0][0], i[0][1], i[1]]) for i in bombs]).flatten())
-    explosions = tuple(explosions.flatten())
-    coins = tuple(np.array([np.array([i[0], i[1]]) for i in coins]).flatten())
-    player = (player[0], player[1], player[2], player[3][0],player[3][1])
-    enemies = [np.array([i[0], i[1], i[2], i[3][0],i[3][1]]) for i in enemies]
-    enemies_flat = []
-    for sublist in enemies:
-         for item in sublist:
-              enemies_flat.append(item)
-    enemies_flat = tuple(enemies_flat)
-              
-    total_list = round + step + field + bombs + explosions + coins + player + enemies_flat 
-    
-	#to difficult for now maybe even unessecary, keep for later
-    """
-    arena = np.zeros((d.ARENA_LENGTH, d.ARENA_WIDTH))
 
-    round = game_state["round"]
-    step = game_state["step"]
-    
-    field = [d.list_of_blocks.EMPTY.value if x == 0 else 
-             d.list_of_blocks.BRICK.value if x == -1 else
-             d.list_of_blocks.CRATE.value
-             for x in field]
-    bombs = game_state["bombs"]
-    explosions = game_state["explosion_map"]
-    coins = game_state["coins"]
-    player = game_state["self"]
-    enemies = game_state["others"]
-    
-    for i in range(0,d.ARENA_LENGTH):
-         for j in range(0,d.ARENA_WIDTH):
-              arena[i][j] = field[i][j]
-    """
-    
-    return total_list
