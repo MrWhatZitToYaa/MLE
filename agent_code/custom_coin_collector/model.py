@@ -82,7 +82,6 @@ class QLearning:
         self.update_q_table(old_state, action, reward, next_state)
         
         self.total_reward += reward
-        state = next_state
         
         self.decay_exploration_prob()
         
