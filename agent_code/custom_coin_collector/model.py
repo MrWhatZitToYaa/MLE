@@ -12,6 +12,7 @@ class QLearning:
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
 
+	self.total_reward = 0
 	self.exploration_prob = 1
         self.q_table = {}
         
@@ -76,13 +77,11 @@ class QLearning:
         """
         self.exploration_prob *= EPSILON_DECAY
 
-    def train(self, old_state, action, reward, next_state):
-        total_reward = 0
-        
+    def train(self, old_state, action, reward, next_state):    
         action = self.get_action_for_state(old_state)
         self.update_q_table(old_state, action, reward, next_state)
         
-        total_reward += reward
+        self.total_reward += reward
         state = next_state
         
         self.decay_exploration_prob()
