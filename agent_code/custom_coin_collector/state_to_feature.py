@@ -89,7 +89,7 @@ def state_to_features_V3(game_state: dict) -> int:
     
     for i in range(0,ARENA_LENGTH):
          for j in range(0,ARENA_WIDTH):
-              arena[i][j] = field[i*j]
+              arena[i][j] = field[i*(ARENA_LENGTH - 1) + j]
     
 	# Add coins to arena
     for i in coins:
