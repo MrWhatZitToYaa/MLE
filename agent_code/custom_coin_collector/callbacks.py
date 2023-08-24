@@ -17,8 +17,7 @@ def setup(self):
     if self.train or not os.path.isfile("my-saved-model.pt"):
         self.logger.info("Setting up model from scratch.")
         weights = np.random.rand(len(ACTIONS))
-        self.model = QLearning(NUM_OF_STATES,
-                               NUM_OF_ACTIONS,
+        self.model = QLearning(NUM_OF_ACTIONS,
                                LEARNING_RATE,
                                DISCOUNT_FACTOR,
                                STARTING_EXPLORATION_PROBABILITY)

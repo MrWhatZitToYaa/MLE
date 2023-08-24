@@ -74,7 +74,8 @@ def state_to_features_V3(game_state: dict) -> int:
     :return: int
     """
     
-    field = game_state["field"].flatten()
+    field = game_state["field"]
+    field = field.flatten()
     coins = game_state["coins"]
     player = game_state["self"]
 
@@ -89,14 +90,14 @@ def state_to_features_V3(game_state: dict) -> int:
     
     for i in range(0,ARENA_LENGTH):
          for j in range(0,ARENA_WIDTH):
-              arena[i][j] = field[i*(ARENA_LENGTH - 1) + j]
+              arena[i][j] = field[i*ARENA_LENGTH + j]
     
 	# Add coins to arena
     for i in coins:
-         arena[i[0]][i[1]] = list_of_blocks.COIN.value
+         arena[i[1]][i[0]] = list_of_blocks.COIN.value
          
 	# Add player to arena
-    arena[player[3][0]][player[3][1]] = list_of_blocks.PLAYER.value
+    arena[player[3][1]][player[3][0]] = list_of_blocks.PLAYER.value
     
     arena = tuple(arena.flatten())
     return arena
