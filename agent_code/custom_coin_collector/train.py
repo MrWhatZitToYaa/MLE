@@ -24,6 +24,9 @@ def setup_training(self):
     # Example: Setup an array that will note transition tuples
     # (s, a, r, s')
     self.transitions = deque(maxlen=TRANSITION_HISTORY_SIZE)
+    self.rewards = []
+    self.total_rewards = []
+    self.total_reward= 0
 
 def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_state: dict, events: List[str]):
     """
@@ -76,11 +79,24 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     """
     
     self.logger.debug(f'Encountered event(s) {", ".join(map(repr, events))} in final step')
-    self.transitions.append(Transition(state_to_features(last_game_state), last_action, None, reward_from_events(self, events)))
+    current_reward = reward_from_events(self, events)
+    self.transitions.append(Transition(state_to_features(last_game_state), last_action, None, current_reward))
+
+
+    self.total_reward += current_reward
+    self.rewards.append(current_reward)
+    self.total_rewards.append(self.total_reward)
 
     # Store the model
     with open("my-saved-model.pt", "wb") as file:
         pickle.dump(self.model, file)
+
+    # Store rewards
+    with open("./rewards/reward_per_round.pkl", "wb") as file:
+        pickle.dump(self.rewards, file)
+
+    with open("./rewards/total_rewards.pkl", "wb") as file:
+        pickle.dump(self.total_rewards, file)
 
 def reward_from_events(self, event_sequence: List[str]) -> int:
     """
