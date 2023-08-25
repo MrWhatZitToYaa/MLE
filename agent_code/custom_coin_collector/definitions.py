@@ -25,7 +25,12 @@ class list_of_blocks(Enum):
     BOMB_TICK1 =	9
     BOMB_TICK2 =	10
 
+# General model parameters
 LEARNING_RATE = 0.1
 DISCOUNT_FACTOR = 0.5
+
+# Exploration probablility
+EXPLORATION_DECAY_ACTIVE = True
 EPSILON_DECAY = 0.95
+DECAY_AFTER_ROUNDS = 10
 STARTING_EXPLORATION_PROBABILITY = 0.1

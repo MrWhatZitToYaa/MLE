@@ -6,10 +6,19 @@ import torch.optim as optim
 from .definitions import *
 
 class QLearning:
-    def __init__(self, num_actions, learning_rate, discount_factor, startin_exploration_probability):
+    def __init__(self, num_actions, learning_rate, discount_factor, startin_exploration_probability,
+                 epsilon_decay, epsilon_decay_after_rounds, decay_active):
         self.num_actions = num_actions
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
+        
+        # Variables for the decay of the exploration probability
+        self.decay_active = decay_active
+        self.epsilon_decay = epsilon_decay
+        self.epsilon_decay_after_rounds = epsilon_decay_after_rounds
+        self.last_decayed_in_round = 0
+        self.last_round = 0
+        
         
         self.total_reward = 0
         self.exploration_prob = startin_exploration_probability
@@ -58,15 +67,26 @@ class QLearning:
 
         self.q_table[state][actionNum] = new_q_value
 
-    def decay_exploration_prob(self):
+    def decay_exploration_prob(self, round_number):
         """
         Reduces the exploration probability for each traning round gradually
-        TODO: ChatGPT proposed this, discuss usefullness and if we wanna do this
         """
-        self.exploration_prob *= EPSILON_DECAY
+        
+        if(not self.decay_active):
+            return
 
-    def train(self, state, action, reward, next_state):
+		# Only true if round number changes
+        if round_number != self.last_round:
+            self.last_round = round_number
+            # Only true every epsilon_decay_after_rounds rounds
+            if round_number == self.last_decayed_in_round + self.epsilon_decay_after_rounds:
+                self.last_decayed_in_round = round_number
+                self.exploration_prob *= EPSILON_DECAY
+
+    def train(self, state, action, reward, next_state, round_number):
         self.update_q_table(state, action, reward, next_state)
         self.total_reward += reward
-        #self.decay_exploration_prob()
+        
+		#decay exploration probability
+        self.model.decay_exploration_prob(round_number)
         

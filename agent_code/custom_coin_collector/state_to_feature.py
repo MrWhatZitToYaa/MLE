@@ -8,12 +8,13 @@ def state_to_features(game_state: dict) -> int:
      :param game_state:  A dictionary describing the current game board.
      :return: int
      """
-     return state_to_features_V4(game_state)
+     return state_to_features_V6(game_state)
 
 def state_to_features_V1(game_state: dict) -> int:
     """
     Converts the game state into a number
     :param game_state:  A dictionary describing the current game board.
+    Note: Way to many states
     :return: int
     """
     # This is the dict before the game begins and after it ends
@@ -50,6 +51,7 @@ def state_to_features_V1(game_state: dict) -> int:
 def state_to_features_V2(game_state: dict) -> int:
     """
     Converts the game state into a number
+    Note: Still way to many states
     :param game_state:  A dictionary describing the current game board.
     :return: int
     """
@@ -70,6 +72,7 @@ def state_to_features_V2(game_state: dict) -> int:
 def state_to_features_V3(game_state: dict) -> int:
     """
     Converts the game state into a number
+    Note: Simular but better than 2, but still way to many states
     :param game_state:  A dictionary describing the current game board.
     :return: int
     """
@@ -107,6 +110,7 @@ def state_to_features_V3(game_state: dict) -> int:
 def state_to_features_V4(game_state: dict) -> int:
     """
     Converts the game state into a number
+    Note: Works well but gets stuck if no coins are found in surrounding area
     :param game_state:  A dictionary describing the current game board.
     :return: int
     """
@@ -125,7 +129,7 @@ def state_to_features_V4(game_state: dict) -> int:
     playerX = player[3][0]
     playerY = player[3][1]
 
-	# Init area
+	# Init area, only use odd sizes
     area_size = 3
     area_around_player = np.zeros((area_size, area_size))
     
@@ -148,5 +152,126 @@ def state_to_features_V4(game_state: dict) -> int:
     
 	# Return hash value of area around player
     area_around_player = tuple(area_around_player.flatten())
+    key = hash(area_around_player)
+    return key
+
+def state_to_features_V5(game_state: dict) -> int:
+    """
+    Converts the game state into a number
+    Same as V4 but adds location of nearest coin(s)
+    Note: Results in too many states and bot doesn't see every state so gets lost
+    :param game_state:  A dictionary describing the current game board.
+    :return: int
+    """
+    
+    field = game_state["field"].flatten()
+    coins = game_state["coins"]
+    player = game_state["self"]
+    
+	# Transform arena
+    field = [list_of_blocks.EMPTY.value if x == 0 else 
+             list_of_blocks.BRICK.value if x == -1 else
+             list_of_blocks.CRATE.value
+             for x in field]
+    
+	# Player cords
+    playerX = player[3][0]
+    playerY = player[3][1]
+
+	# Init area, only use odd sizes
+    area_size = 3
+    area_around_player = np.zeros((area_size, area_size))
+    
+    #Copy area around player
+    for i in range(0,area_size):
+         for j in range(0,area_size):
+              area_around_player[i][j] = field[(i-1+playerY)*ARENA_LENGTH + j-1 + playerX]
+              
+	# Add coins around player to area
+    for i in coins:
+         coinX = i[0]
+         coinY = i[1]
+         if abs(coinX - playerX) <= 1 and abs(coinY - playerY) <= 1:
+              coinX = coinX - playerX + 1
+              coinY = coinY - playerY + 1
+              area_around_player[coinY][coinX] = list_of_blocks.COIN.value
+         
+	# Add player to area
+    area_around_player[1][1] = list_of_blocks.PLAYER.value
+    
+    area_around_player = tuple(area_around_player.flatten())
+    
+	# Add (TODO: try relative) coordinates of nearest coin(s)
+    nearestCoin = [0,0]
+    nearestCoinXdist = ARENA_LENGTH + 1
+    nearestCoinYdist = ARENA_WIDTH  + 1
+    
+    for i in coins:
+         coinX = i[0]
+         coinY = i[1]
+         if abs(coinX - playerX) + abs(coinY - playerY) < nearestCoinXdist + nearestCoinYdist:
+                nearestCoinXdist = abs(coinX - playerX)
+                nearestCoinYdist = abs(coinY - playerY)
+                nearestCoin = i
+                
+    area_around_player = area_around_player + tuple([nearestCoin[1], nearestCoin[0]])
+    
+	# Return hash value of area around player
+    key = hash(area_around_player)
+    return key
+
+def state_to_features_V6(game_state: dict) -> int:
+    """
+    Converts the game state into a number
+    Only player location, walls arround him and nearest coin
+    :param game_state:  A dictionary describing the current game board.
+    :return: int
+    """
+    
+    field = game_state["field"].flatten()
+    coins = game_state["coins"]
+    player = game_state["self"]
+    
+	# Transform arena
+    field = [list_of_blocks.EMPTY.value if x == 0 else 
+             list_of_blocks.BRICK.value if x == -1 else
+             list_of_blocks.CRATE.value
+             for x in field]
+    
+	# Player cords
+    playerX = player[3][0]
+    playerY = player[3][1]
+
+	# Init area, only use odd sizes
+    area_size = 3
+    area_around_player = np.zeros((area_size, area_size))
+    
+    #Copy area around player
+    for i in range(0,area_size):
+         for j in range(0,area_size):
+              area_around_player[i][j] = field[(i-1+playerY)*ARENA_LENGTH + j-1 + playerX]
+         
+	# Add player to area
+    area_around_player[1][1] = list_of_blocks.PLAYER.value
+    
+    area_around_player = tuple(area_around_player.flatten())
+    
+	# Add (TODO: try relative) coordinates of nearest coin(s)
+    nearestCoin = [0,0]
+    nearestCoinXdist = ARENA_LENGTH + 1
+    nearestCoinYdist = ARENA_WIDTH  + 1
+    
+    for i in coins:
+         coinX = i[0]
+         coinY = i[1]
+         if abs(coinX - playerX) + abs(coinY - playerY) < nearestCoinXdist + nearestCoinYdist:
+                nearestCoinXdist = abs(coinX - playerX)
+                nearestCoinYdist = abs(coinY - playerY)
+                nearestCoin = i
+                
+    area_around_player += tuple([nearestCoin[1], nearestCoin[0]])
+    area_around_player += tuple([playerY, playerX])
+    
+	# Return hash value of area around player
     key = hash(area_around_player)
     return key

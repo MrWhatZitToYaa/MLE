@@ -20,7 +20,10 @@ def setup(self):
         self.model = QLearning(NUM_OF_ACTIONS,
                                LEARNING_RATE,
                                DISCOUNT_FACTOR,
-                               STARTING_EXPLORATION_PROBABILITY)
+                               STARTING_EXPLORATION_PROBABILITY,
+                               EPSILON_DECAY,
+                               DECAY_AFTER_ROUNDS,
+                               EXPLORATION_DECAY_ACTIVE)
     else:
         self.logger.info("Loading model from saved state.")
         with open("my-saved-model.pt", "rb") as file:
