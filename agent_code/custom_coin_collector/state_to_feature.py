@@ -8,7 +8,7 @@ def state_to_features(game_state: dict) -> int:
      :param game_state:  A dictionary describing the current game board.
      :return: int
      """
-     return state_to_features_V3(game_state)
+     return state_to_features_V4(game_state)
 
 def state_to_features_V1(game_state: dict) -> int:
     """
@@ -100,4 +100,53 @@ def state_to_features_V3(game_state: dict) -> int:
     arena[player[3][1]][player[3][0]] = list_of_blocks.PLAYER.value
     
     arena = tuple(arena.flatten())
-    return arena
+    
+    key = hash(arena)
+    return key
+
+def state_to_features_V4(game_state: dict) -> int:
+    """
+    Converts the game state into a number
+    :param game_state:  A dictionary describing the current game board.
+    :return: int
+    """
+    
+    field = game_state["field"].flatten()
+    coins = game_state["coins"]
+    player = game_state["self"]
+    
+	# Transform arena
+    field = [list_of_blocks.EMPTY.value if x == 0 else 
+             list_of_blocks.BRICK.value if x == -1 else
+             list_of_blocks.CRATE.value
+             for x in field]
+    
+	# Player cords
+    playerX = player[3][0]
+    playerY = player[3][1]
+
+	# Init area
+    area_size = 3
+    area_around_player = np.zeros((area_size, area_size))
+    
+    #Copy area around player
+    for i in range(0,area_size):
+         for j in range(0,area_size):
+              area_around_player[i][j] = field[(i-1+playerY)*ARENA_LENGTH + j-1 + playerX]
+              
+	# Add coins around player to area
+    for i in coins:
+         coinX = i[0]
+         coinY = i[1]
+         if abs(coinX - playerX) <= 1 and abs(coinY - playerY) <= 1:
+              coinX = coinX - playerX + 1
+              coinY = coinY - playerY + 1
+              area_around_player[coinY][coinX] = list_of_blocks.COIN.value
+         
+	# Add player to area
+    area_around_player[1][1] = list_of_blocks.PLAYER.value
+    
+	# Return hash value of area around player
+    area_around_player = tuple(area_around_player.flatten())
+    key = hash(area_around_player)
+    return key

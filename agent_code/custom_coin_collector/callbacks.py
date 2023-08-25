@@ -44,6 +44,8 @@ def act(self, game_state: dict) -> str:
 
     self.logger.debug("Querying model for action.")
     state = state_to_features(game_state)
+    size_of_dictionary = len(self.model.q_table)
+    key_valid = state in self.model.q_table
     next_action = self.model.get_action_for_state(state)
     return next_action
 

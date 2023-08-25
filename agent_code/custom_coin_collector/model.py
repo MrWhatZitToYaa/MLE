@@ -40,7 +40,7 @@ class QLearning:
         next_action = ACTIONS[np.argmax(self.get_qValues_for_state(state))]
         return next_action
     
-    def update_q_table(self, old_state, action, reward, next_state):
+    def update_q_table(self, state, action, reward, next_state):
         """
         Iterative approach to update the q-table
         """
@@ -50,13 +50,13 @@ class QLearning:
         
         actionNum = self.action_to_actionNum(action)
         
-        old_q_value = self.get_qValues_for_state(old_state)[actionNum]
-        new_q_value = old_q_value + self.learning_rate * (reward + self.discount_factor * qValue_best_next_action - old_q_value)
+        old_q_value = self.get_qValues_for_state(state)[actionNum]
+        new_q_value = (1 - self.learning_rate) * old_q_value + self.learning_rate * (reward + self.discount_factor * qValue_best_next_action)
         
-        if old_state not in self.q_table:
-            self.q_table[old_state] = [0.0] * self.num_actions
+        if state not in self.q_table:
+            self.q_table[state] = [0.0] * self.num_actions
 
-        self.q_table[old_state][actionNum] = new_q_value
+        self.q_table[state][actionNum] = new_q_value
 
     def decay_exploration_prob(self):
         """
@@ -65,8 +65,8 @@ class QLearning:
         """
         self.exploration_prob *= EPSILON_DECAY
 
-    def train(self, old_state, action, reward, next_state):
-        self.update_q_table(old_state, action, reward, next_state)
+    def train(self, state, action, reward, next_state):
+        self.update_q_table(state, action, reward, next_state)
         self.total_reward += reward
         #self.decay_exploration_prob()
         
