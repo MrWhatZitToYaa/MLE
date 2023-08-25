@@ -88,5 +88,5 @@ class QLearning:
         self.total_reward += reward
         
 		#decay exploration probability
-        self.model.decay_exploration_prob(round_number)
+        self.decay_exploration_prob(round_number)
         
