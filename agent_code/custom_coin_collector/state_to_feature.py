@@ -8,7 +8,7 @@ def state_to_features(game_state: dict) -> int:
      :param game_state:  A dictionary describing the current game board.
      :return: int
      """
-     return state_to_features_V6(game_state)
+     return state_to_features_V7(game_state)
 
 def state_to_features_V1(game_state: dict) -> int:
     """
@@ -271,6 +271,72 @@ def state_to_features_V6(game_state: dict) -> int:
                 
     area_around_player += tuple([nearestCoin[1], nearestCoin[0]])
     area_around_player += tuple([playerY, playerX])
+    
+	# Return hash value of area around player
+    key = hash(area_around_player)
+    return key
+
+def state_to_features_V7(game_state: dict) -> int:
+    """
+    Converts the game state into a number
+    Only player location, walls arround him and nearest coin
+    :param game_state:  A dictionary describing the current game board.
+    :return: int
+    """
+    
+    field = game_state["field"].flatten()
+    coins = game_state["coins"]
+    player = game_state["self"]
+    
+	# Transform arena
+    field = [list_of_blocks.EMPTY.value if x == 0 else 
+             list_of_blocks.BRICK.value if x == -1 else
+             list_of_blocks.CRATE.value
+             for x in field]
+    
+	# Player cords
+    playerX = player[3][0]
+    playerY = player[3][1]
+
+	# Init area, only use odd sizes
+    area_size = 3
+    area_around_player = np.zeros((area_size, area_size))
+    
+    #Copy area around player
+    for i in range(0,area_size):
+         for j in range(0,area_size):
+              area_around_player[i][j] = field[(i-1+playerY)*ARENA_LENGTH + j-1 + playerX]
+         
+	# Add player to area
+    area_around_player[1][1] = list_of_blocks.PLAYER.value
+    
+    area_around_player = tuple(area_around_player.flatten())
+    
+	# Add (TODO: try relative) coordinates of nearest coin(s)
+    nearestCoin = [0,0]
+    nearestCoinXdist = ARENA_LENGTH + 1
+    nearestCoinYdist = ARENA_WIDTH  + 1
+    
+    for i in coins:
+         coinX = i[0]
+         coinY = i[1]
+         if abs(coinX - playerX) + abs(coinY - playerY) < nearestCoinXdist + nearestCoinYdist:
+                nearestCoinXdist = abs(coinX - playerX)
+                nearestCoinYdist = abs(coinY - playerY)
+                nearestCoin = i
+            
+	# Relative directino of coin to player
+    directionX = -1
+    directionY = -1
+    if nearestCoin[0] < playerX:
+         directionX = 0
+    else:
+         directionX = 1
+    if nearestCoin[1] < playerY:
+         directionY = 0
+    else:
+         directionY = 1
+    area_around_player += tuple([directionY, directionX])
     
 	# Return hash value of area around player
     key = hash(area_around_player)
