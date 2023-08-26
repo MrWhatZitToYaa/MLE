@@ -324,7 +324,8 @@ def state_to_features_V7(game_state: dict) -> int:
                 nearestCoinXdist = abs(coinX - playerX)
                 nearestCoinYdist = abs(coinY - playerY)
                 nearestCoin = i
-            
+
+    '''
 	# Relative directino of coin to player
     directionX = -1
     directionY = -1
@@ -337,7 +338,32 @@ def state_to_features_V7(game_state: dict) -> int:
     else:
          directionY = 1
     area_around_player += tuple([directionY, directionX])
-    
+    '''
+    # Relative directino of coin to player
+    directionX = -1
+    directionY = -1
+    if nearestCoin[0] < playerX:
+        directionX = 0
+    elif nearestCoin[0] == playerX:
+        directionX = 1
+    else:
+        directionX = 2
+
+    if nearestCoin[1] < playerY:
+        directionY = 0
+    elif nearestCoin[1] == playerY:
+        directionY = 1
+    else:
+        directionY = 2
+    area_around_player += tuple([directionY, directionX])
 	# Return hash value of area around player
     key = hash(area_around_player)
     return key
+
+def find_min_distance(coins, playerX, playerY):
+    min_d = ARENA_LENGTH
+    for (coinX, coinY) in coins:
+        d = np.linalg.norm(np.array((playerX, playerY)) - np.array((coinX, coinY)))
+        if d < min_d:
+            min_d = d
+    return min_d

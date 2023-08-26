@@ -2,8 +2,9 @@ import events as event
 from typing import List
 from collections import namedtuple, deque
 import pickle
-
+from .definitions import *
 from .callbacks import state_to_features
+from .state_to_feature import find_min_distance
 
 # This is only an example!
 Transition = namedtuple('Transition',
@@ -51,6 +52,10 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
     if ...:
         events.append(PLACEHOLDER_EVENT)
     """
+    if is_coin_dist_decreased(old_game_state, new_game_state):
+        events.append(COIN_DIST_DECREASED)
+        self.logger.debug(f'Custom event occurred: {COIN_DIST_DECREASED}')
+
 
     # state_to_features is defined in callbacks.py
     self.model.train(state_to_features(old_game_state),
@@ -123,6 +128,8 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
 		event.GOT_KILLED: -500,
         event.OPPONENT_ELIMINATED: 200,
 		event.SURVIVED_ROUND: 50,
+
+        COIN_DIST_DECREASED: 5
     }
     
     total_reward = 0
@@ -132,3 +139,12 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
             
     self.logger.info(f"Gained {total_reward} total reward for events {', '.join(event_sequence)}")
     return total_reward
+
+def is_coin_dist_decreased(old_state, new_state):
+    """
+    Checks whether the agent moved towards a coin.
+    """
+    old_min_d = find_min_distance(old_state["coins"], *old_state["self"][3])
+    new_min_d = find_min_distance(new_state["coins"], *new_state["self"][3])
+
+    return new_min_d < old_min_d
