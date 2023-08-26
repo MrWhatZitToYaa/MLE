@@ -8,7 +8,7 @@ def state_to_features(game_state: dict) -> int:
      :param game_state:  A dictionary describing the current game board.
      :return: int
      """
-     return state_to_features_V7(game_state)
+     return state_to_features_V8(game_state)
 
 def state_to_features_V1(game_state: dict) -> int:
     """
