@@ -9,6 +9,9 @@ from environment import BombeRLeWorld, GUI
 from fallbacks import pygame, LOADED_PYGAME
 from replay import ReplayWorld
 
+import os
+import pickle
+
 ESCAPE_KEYS = (pygame.K_q, pygame.K_ESCAPE)
 
 
@@ -90,6 +93,16 @@ def world_controller(world, n_rounds, *,
                         key_pressed = event.key
                         if key_pressed in s.INPUT_MAP or key_pressed in ESCAPE_KEYS:
                             do_continue = True
+        
+		# Add performance evaluation data
+        for agent in world.agents:
+            if agent.evaluate_performance:
+                # Very very ugly and definetly not intended but works so idk right now
+                agent.backend.runner.fake_self.scores.append(agent.score)
+                # Store qTable size
+                filePath_for_agent = "./agent_code/" + str(agent.backend.runner.agent_name) + "/monitor_training/performanceEvaluation.pkl"
+                with open(filePath_for_agent, "wb") as file:
+                    pickle.dump(agent.backend.runner.fake_self.scores, file)
 
     world.end()
 
@@ -116,6 +129,8 @@ def main(argv = None):
     play_parser.add_argument("--n-rounds", type=int, default=10, help="How many rounds to play")
     play_parser.add_argument("--save-replay", const=True, default=False, action='store', nargs='?', help='Store the game as .pt for a replay')
     play_parser.add_argument("--match-name", help="Give the match a name")
+    
+    play_parser.add_argument("--evaluate-performance", type=int, default=0, help="Evaluates the performance for agent number ; 0 for none")
 
     play_parser.add_argument("--silence-errors", default=False, action="store_true", help="Ignore errors from agents")
 
@@ -159,8 +174,8 @@ def main(argv = None):
         if args.my_agent:
             agents.append((args.my_agent, len(agents) < args.train))
             args.agents = ["rule_based_agent"] * (s.MAX_AGENTS - 1)
-        for agent_name in args.agents:
-            agents.append((agent_name, len(agents) < args.train))
+        for agent_num, agent_name in enumerate(args.agents):
+            agents.append((agent_name, len(agents) < args.train, args.evaluate_performance == agent_num+1))
 
         world = BombeRLeWorld(args, agents)
         every_step = not args.skip_frames
