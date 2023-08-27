@@ -96,10 +96,6 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     
     self.logger.debug(f'Encountered event(s) {", ".join(map(repr, events))} in final step')
     self.transitions.append(Transition(state_to_features(last_game_state), last_action, None, reward_from_events(self, events)))
-
-	# Add rewards of final steps, since there is no training
-    self.model.total_reward += reward_from_events(self, events)
-    self.total_rewards.append(self.model.total_reward)
     
 	# Add qTable size
     self.total_qTable_size.append(len(self.model.q_table))
@@ -109,8 +105,13 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
         pickle.dump(self.model, file)
 
 	# Store rewards
+	# Add rewards of final steps, since there is no training
+    self.model.total_reward += reward_from_events(self, events)
+    self.total_rewards.append(self.model.total_reward)
     with open("./monitor_training/total_rewards.pkl", "wb") as file:
         pickle.dump(self.total_rewards, file)
+    # Set total rewards to 0 for next round
+    self.model.total_reward = 0
         
 	# Store qTable size
     with open("./monitor_training/qTableSize.pkl", "wb") as file:
@@ -120,9 +121,6 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     self.exploration_Probabilities.append(self.model.exploration_prob)
     with open("./monitor_training/exploration_probability.pkl", "wb") as file:
         pickle.dump(self.exploration_Probabilities, file)
-        
-	# set total rewards to 0 for next round
-    self.total_reward = 0
 
 def reward_from_events(self, event_sequence: List[str]) -> int:
     """
