@@ -78,7 +78,9 @@ def state_to_features_V9(game_state: dict) -> int:
 
         area_around_player += tuple(safe_tiles)
 
-
+        # add distance to dangerous bomb
+        dist_to_closest_bomb = np.linalg.norm(np.array(playerX, playerY) - np.array((dangerous_bomb[0][0], dangerous_bomb[0][1])))
+        area_around_player += tuple([dist_to_closest_bomb])
 
 	# Return hash value of area around player
     key = hash(area_around_player)
@@ -130,7 +132,7 @@ def within_explosion_radius(current_state):
 
 def find_closest_dangerous_bomb(bombs, field, player_coords):
     """
-    This finds a bomb wihtin whichs radius the agent is. IMPORTANT: There may be more than one dangerous bomb, this will only find the closest.
+    This finds a bomb wihtin whose radius the agent is. IMPORTANT: There may be more than one dangerous bomb, this will only find the closest.
     """
     dangerous_bombs = []
     for bomb in bombs:

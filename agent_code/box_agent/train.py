@@ -77,8 +77,8 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
         self.logger.debug(f'Custom event occurred: {MOVED_IN_SAFE_DIRECTION}')
     
     if got_out_of_explosion_radius(old_game_state, new_game_state):
-        events.append(GOT_OUT_OF_EXPLOTION_RADIUS)
-        self.logger.debug(f'Custom event occurred: {GOT_OUT_OF_EXPLOTION_RADIUS}')
+        events.append(GOT_OUT_OF_EXPLOSION_RADIUS)
+        self.logger.debug(f'Custom event occurred: {GOT_OUT_OF_EXPLOSION_RADIUS}')
 
     if event.BOMB_DROPPED in events and not reachable_safe_tile_exists(new_game_state["self"][3], new_game_state["field"], new_game_state["bombs"]):        
         events.append(DROPPED_BOMB_WITH_NO_WAY_OUT)
@@ -150,26 +150,26 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         event.MOVED_DOWN: -5,
         event.WAITED: -5,
         event.INVALID_ACTION: -20,
-        
+
         event.BOMB_DROPPED: 5,
         event.BOMB_EXPLODED: 0,
-        
+
         event.CRATE_DESTROYED: 5,
         event.COIN_FOUND: 10,
-		event.COIN_COLLECTED: 100,
-        
+        event.COIN_COLLECTED: 100,
+
         event.KILLED_OPPONENT: 0,
         event.KILLED_SELF: -500,
-        
-		event.GOT_KILLED: -500,
+
+        event.GOT_KILLED: -500,
         event.OPPONENT_ELIMINATED: 200,
-		event.SURVIVED_ROUND: 50,
+        event.SURVIVED_ROUND: 50,
 
         # Custom events
         COIN_DIST_DECREASED: 5,
         STAYED_WITHIN_EXPLOSION_RADIUS: -5,
         MOVED_IN_SAFE_DIRECTION: 10,
-        GOT_OUT_OF_EXPLOTION_RADIUS: 100,
+        GOT_OUT_OF_EXPLOSION_RADIUS: 100,
         DROPPED_BOMB_WITH_NO_WAY_OUT: -100
     }
     
