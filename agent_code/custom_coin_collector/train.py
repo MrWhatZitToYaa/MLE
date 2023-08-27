@@ -104,6 +104,16 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     with open("./monitor_training/qTableSize.pkl", "wb") as file:
         pickle.dump(self.total_qTable_size, file)
         
+    hyperparameters = [self.model.learning_rate,
+                       self.model.discount_factor,
+                       self.model.exploration_prob,
+                       self.model.decay_active,
+                       self.model.epsilon_decay]
+
+    # Store Hyperparameters
+    with open("./monitor_training/hyperparameters.pkl", "wb") as file:
+        pickle.dump(hyperparameters, file)
+        
 	# set total rewards to 0 for next round
     self.total_reward = 0
 
