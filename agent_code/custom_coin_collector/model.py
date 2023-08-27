@@ -44,8 +44,13 @@ class QLearning:
         # probabilistic choice of action
     	#next_action = np.random.choice(ACTIONS, self.get_qValues_for_state(state).numpy())
 
-        # choose action with maximum reward
-        next_action = ACTIONS[np.argmax(self.get_qValues_for_state(state))]
+        # choose action with maximum reward or random action if all qValues are the same
+        qValues = self.get_qValues_for_state(state)
+        if all(element == qValues[0] for element in qValues):
+            next_action = np.random.choice(ACTIONS, p=PROBABILITIES_FOR_ACTIONS)
+        else:
+            next_action = ACTIONS[np.argmax(qValues)]
+            
         return next_action
     
     def update_q_table(self, state, action, reward, next_state):
