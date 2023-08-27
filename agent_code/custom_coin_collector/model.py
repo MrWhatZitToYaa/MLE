@@ -13,15 +13,14 @@ class QLearning:
         self.discount_factor = discount_factor
         
         # Variables for the decay of the exploration probability
+        self.exploration_prob = startin_exploration_probability
         self.decay_active = decay_active
         self.epsilon_decay = epsilon_decay
         self.epsilon_decay_after_rounds = epsilon_decay_after_rounds
         self.last_decayed_in_round = 0
         self.last_round = 0
         
-        
         self.total_reward = 0
-        self.exploration_prob = startin_exploration_probability
         self.q_table = {}
         
     def action_to_actionNum(self, action):
