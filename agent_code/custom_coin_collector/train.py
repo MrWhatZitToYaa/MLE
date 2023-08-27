@@ -26,6 +26,7 @@ def setup_training(self):
     # (s, a, r, s')
     self.transitions = deque(maxlen=TRANSITION_HISTORY_SIZE)
     self.total_rewards = []
+    self.total_qTable_size = []
 
 def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_state: dict, events: List[str]):
     """
@@ -84,18 +85,24 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     self.logger.debug(f'Encountered event(s) {", ".join(map(repr, events))} in final step')
     self.transitions.append(Transition(state_to_features(last_game_state), last_action, None, reward_from_events(self, events)))
 
-	# Add total rewards for this round to a file
-
 	# Add rewards of final steps, since there is no training
     self.model.total_reward += reward_from_events(self, events)
     self.total_rewards.append(self.model.total_reward)
+    
+	# Add qTable size
+    self.total_qTable_size.append(len(self.model.q_table))
 
     # Store the model
     with open("my-saved-model.pt", "wb") as file:
         pickle.dump(self.model, file)
 
-    with open("./rewards/total_rewards.pkl", "wb") as file:
+	# Store rewards
+    with open("./monitor_training/total_rewards.pkl", "wb") as file:
         pickle.dump(self.total_rewards, file)
+        
+	# Store qTable size
+    with open("./monitor_training/qTableSize.pkl", "wb") as file:
+        pickle.dump(self.total_qTable_size, file)
         
 	# set total rewards to 0 for next round
     self.total_reward = 0
