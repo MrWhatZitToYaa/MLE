@@ -27,6 +27,18 @@ def setup_training(self):
     self.transitions = deque(maxlen=TRANSITION_HISTORY_SIZE)
     self.total_rewards = []
     self.total_qTable_size = []
+    self.exploration_Probabilities = []
+    
+    hyperparameters = [self.model.learning_rate,
+                       self.model.discount_factor,
+                       self.model.exploration_prob,
+                       self.model.decay_active,
+                       self.model.epsilon_decay,
+                       self.model.epsilon_decay_after_rounds]
+
+    # Store Hyperparameters
+    with open("./monitor_training/hyperparameters.pkl", "wb") as file:
+        pickle.dump(hyperparameters, file)
 
 def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_state: dict, events: List[str]):
     """
@@ -104,15 +116,10 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     with open("./monitor_training/qTableSize.pkl", "wb") as file:
         pickle.dump(self.total_qTable_size, file)
         
-    hyperparameters = [self.model.learning_rate,
-                       self.model.discount_factor,
-                       self.model.exploration_prob,
-                       self.model.decay_active,
-                       self.model.epsilon_decay]
-
-    # Store Hyperparameters
-    with open("./monitor_training/hyperparameters.pkl", "wb") as file:
-        pickle.dump(hyperparameters, file)
+	# Store exploration probability
+    self.exploration_Probabilities.append(self.model.exploration_prob)
+    with open("./monitor_training/exploration_probability.pkl", "wb") as file:
+        pickle.dump(self.exploration_Probabilities, file)
         
 	# set total rewards to 0 for next round
     self.total_reward = 0
