@@ -5,6 +5,7 @@ import pickle
 import numpy as np
 from .definitions import *
 from .callbacks import state_to_features
+from .state_to_feature_helpers import *
 from .state_to_feature import find_min_coin_distance, within_explosion_radius, find_closest_dangerous_bomb, get_blast_coords, get_reachable_tiles
 
 # This is only an example!
@@ -64,6 +65,12 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
     if ...:
         events.append(PLACEHOLDER_EVENT)
     """
+    new_position = get_player_coordinates(new_game_state["self"])
+
+    if new_position in self.model.lastPositions:
+        events.append(VISITED_SAME_PLACE)
+        self.logger.debug(f'Custom event occurred: {VISITED_SAME_PLACE}')
+
     if is_coin_dist_decreased(old_game_state, new_game_state):
         events.append(COIN_DIST_DECREASED)
         self.logger.debug(f'Custom event occurred: {COIN_DIST_DECREASED}')
@@ -84,7 +91,6 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
         events.append(DROPPED_BOMB_WITH_NO_WAY_OUT)
         self.logger.debug(f'Custom event occurred: {DROPPED_BOMB_WITH_NO_WAY_OUT}')
 
-
     # state_to_features is defined in callbacks.py
     self.model.train(state_to_features(old_game_state),
                      self_action,
@@ -92,6 +98,8 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
                      state_to_features(new_game_state),
                      old_game_state["round"])
     self.transitions.append(Transition(state_to_features(old_game_state), self_action, state_to_features(new_game_state), reward_from_events(self, events)))
+
+    self.model.update_last_positions(new_position)
 
 def end_of_round(self, last_game_state: dict, last_action: str, events: List[str]):
     """
@@ -148,7 +156,7 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         event.MOVED_RIGHT: -5,
         event.MOVED_UP: -5,
         event.MOVED_DOWN: -5,
-        event.WAITED: -5,
+        event.WAITED: -10,
         event.INVALID_ACTION: -20,
 
         event.BOMB_DROPPED: 5,
@@ -167,10 +175,11 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
 
         # Custom events
         COIN_DIST_DECREASED: 5,
-        STAYED_WITHIN_EXPLOSION_RADIUS: -5,
+        STAYED_WITHIN_EXPLOSION_RADIUS: -10,
         MOVED_IN_SAFE_DIRECTION: 10,
-        GOT_OUT_OF_EXPLOSION_RADIUS: 100,
-        DROPPED_BOMB_WITH_NO_WAY_OUT: -100
+        GOT_OUT_OF_EXPLOSION_RADIUS: 0,
+        DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
+        VISITED_SAME_PLACE: -10
     }
     
     total_reward = 0
@@ -206,15 +215,15 @@ def stayed_within_explosion_radius(old_state, new_state):
     """
     Checks whether the agent continues to be in the radius of an explosion.
     """
-    if not within_explosion_radius(old_state): return False
+    if not within_explosion_radius(old_state["self"][0][0], old_state["self"][0][1], old_state["field"], old_state["bombs"]): return False
     else:
-        if within_explosion_radius(new_state): return True
+        if within_explosion_radius(new_state["self"][0][0], new_state["self"][0][1], new_state["field"], new_state["bombs"]): return True
         else: return False
 
 def got_out_of_explosion_radius(old_state, new_state):
-    if not within_explosion_radius(old_state): return False
+    if not within_explosion_radius(old_state["self"][0][0], old_state["self"][0][1], old_state["field"], old_state["bombs"]): return False
     else:
-        if within_explosion_radius(new_state): return False
+        if within_explosion_radius(new_state["self"][0][0], new_state["self"][0][1], new_state["field"], new_state["bombs"]): return False
         else: return True
 
 """ def reachable_safe_tile_exists(player_coords, field):
@@ -264,5 +273,4 @@ def reachable_safe_tile_exists(player_coords, field, bombs):
         if tile not in radius:
             return True
     else: return False
-
 

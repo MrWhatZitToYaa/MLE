@@ -22,6 +22,7 @@ class QLearning:
         
         self.total_reward = 0
         self.q_table = {}
+        self.lastPositions = [(np.NINF, np.NINF), (np.inf,np.inf)]
         
     def action_to_actionNum(self, action):
         """
@@ -94,3 +95,6 @@ class QLearning:
 		#decay exploration probability
         self.decay_exploration_prob(round_number)
         
+    def update_last_positions(self, position: tuple):
+        self.lastPositions[0] = self.lastPositions[1]
+        self.lastPositions[1] = position

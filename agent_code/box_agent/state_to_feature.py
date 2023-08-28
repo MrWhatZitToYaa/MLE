@@ -40,7 +40,7 @@ def state_to_features_V9(game_state: dict) -> int:
     # There is no danger
     best_safe_tile = [-1,-1] 
 
-    if within_explosion_radius(get_player_coordinates(player), field, bombs):
+    if within_explosion_radius(*get_player_coordinates(player), field, bombs):
         playerX, playerY = get_player_coordinates(player)
 
         dangerous_bomb = find_closest_dangerous_bomb(bombs, field, (playerX, playerY))
