@@ -5,7 +5,7 @@ import pickle
 import numpy as np
 from .definitions import *
 from .callbacks import state_to_features
-from .state_to_feature import find_min_distance, within_explosion_radius, find_closest_dangerous_bomb, get_blast_coords, get_reachable_tiles
+from .state_to_feature import find_min_coin_distance, within_explosion_radius, find_closest_dangerous_bomb, get_blast_coords, get_reachable_tiles
 
 # This is only an example!
 Transition = namedtuple('Transition',
@@ -185,8 +185,8 @@ def is_coin_dist_decreased(old_state, new_state):
     """
     Checks whether the agent moved towards a coin.
     """
-    old_min_d = find_min_distance(old_state["coins"], *old_state["self"][3])
-    new_min_d = find_min_distance(new_state["coins"], *new_state["self"][3])
+    old_min_d = find_min_coin_distance(old_state["coins"], *old_state["self"][3])
+    new_min_d = find_min_coin_distance(new_state["coins"], *new_state["self"][3])
 
     return new_min_d < old_min_d
 
