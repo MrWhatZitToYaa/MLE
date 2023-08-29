@@ -91,6 +91,14 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
         events.append(DROPPED_BOMB_WITH_NO_WAY_OUT)
         self.logger.debug(f'Custom event occurred: {DROPPED_BOMB_WITH_NO_WAY_OUT}')
 
+    if check_if_survived_explosion(old_game_state, new_game_state):
+        events.append(SURVIVED_EXPLOSION)
+        self.logger.debug(f'Custom event occurred: {SURVIVED_EXPLOSION}')
+
+    if walked_into_explosion(new_game_state):
+        events.append(WALKED_INTO_EXPLOSION)
+        self.logger.debug(f'Custom event occurred: {WALKED_INTO_EXPLOSION}')
+
     # state_to_features is defined in callbacks.py
     self.model.train(state_to_features(old_game_state),
                      self_action,
@@ -152,17 +160,17 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
     Returns total reward for a sequence of events
     """
     rewards = {
-        event.MOVED_LEFT: -5,
-        event.MOVED_RIGHT: -5,
-        event.MOVED_UP: -5,
-        event.MOVED_DOWN: -5,
-        event.WAITED: -10,
-        event.INVALID_ACTION: -20,
+        event.MOVED_LEFT: -1,
+        event.MOVED_RIGHT: -1,
+        event.MOVED_UP: -1,
+        event.MOVED_DOWN: -1,
+        event.WAITED: -20,
+        event.INVALID_ACTION: -50,
 
-        event.BOMB_DROPPED: 5,
+        event.BOMB_DROPPED: 15,
         event.BOMB_EXPLODED: 0,
 
-        event.CRATE_DESTROYED: 5,
+        event.CRATE_DESTROYED: 15,
         event.COIN_FOUND: 10,
         event.COIN_COLLECTED: 100,
 
@@ -171,15 +179,23 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
 
         event.GOT_KILLED: -500,
         event.OPPONENT_ELIMINATED: 200,
-        event.SURVIVED_ROUND: 50,
+        event.SURVIVED_ROUND: 0,
 
         # Custom events
+
+        # Collect coins
         COIN_DIST_DECREASED: 5,
-        STAYED_WITHIN_EXPLOSION_RADIUS: -10,
+
+        # Blow up Crates
+        STAYED_WITHIN_EXPLOSION_RADIUS: 0,
         MOVED_IN_SAFE_DIRECTION: 10,
         GOT_OUT_OF_EXPLOSION_RADIUS: 0,
         DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
-        VISITED_SAME_PLACE: -10
+        SURVIVED_EXPLOSION: 50,
+        WALKED_INTO_EXPLOSION: -50,
+        
+        # General Movement
+        VISITED_SAME_PLACE: -20
     }
     
     total_reward = 0
@@ -273,4 +289,23 @@ def reachable_safe_tile_exists(player_coords, field, bombs):
         if tile not in radius:
             return True
     else: return False
+
+def check_if_survived_explosion(old_state, new_state):
+    """
+    Checks if an explosion was survuved. MAY NOT WORK RELIABLY WITH MULTIPLE AGENTS!
+    """
+    if np.sum(old_state["explosion_map"]) != 0 and np.sum(new_state["explosion_map"]) == 0:
+        return True
+    else:
+        return False
+    
+def walked_into_explosion(new_state):
+    new_coords = get_player_coordinates(new_state["self"])
+
+    if new_state["explosion_map"][new_coords[0]][new_coords[1]] != 0:
+        return True
+    else: return False
+
+    
+
 

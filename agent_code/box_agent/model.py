@@ -22,7 +22,7 @@ class QLearning:
         
         self.total_reward = 0
         self.q_table = {}
-        self.lastPositions = [(np.NINF, np.NINF), (np.inf,np.inf)]
+        self.lastPositions = [(np.NINF, np.NINF), (np.inf,np.inf), (np.inf, np.inf)]
         
     def action_to_actionNum(self, action):
         """

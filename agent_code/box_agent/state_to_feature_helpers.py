@@ -8,13 +8,24 @@ def get_player_coordinates(player):
     
     return (playerX, playerY)
 
-def get_safe_tiles(reachable_tiles, blast_coords):
+def get_safe_tiles_from_specific_bomb(reachable_tiles, blast_coords):
     safe_tiles = []
     for tile in reachable_tiles:
             if tile not in blast_coords:
                 safe_tiles.append(tile)
 
     return safe_tiles
+
+def get_safe_tiles(reachable_tiles, bombs, field):
+    safe_tiles = []
+    if bombs == []: return reachable_tiles
+    else:
+        for bomb in bombs:
+            for tile in reachable_tiles:
+                if tile not in get_blast_coords(bomb[0], field):
+                    safe_tiles.append(tile)
+    return safe_tiles
+
 
 def get_area_around_player(field, player):
     field = field.flatten()
