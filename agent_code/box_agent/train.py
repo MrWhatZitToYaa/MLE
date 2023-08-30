@@ -6,7 +6,7 @@ import numpy as np
 from .definitions import *
 from .callbacks import state_to_features
 from .state_to_feature_helpers import *
-from .state_to_feature import find_min_coin_distance, within_explosion_radius, find_closest_dangerous_bomb, get_blast_coords, get_reachable_tiles
+from .customEventAppender import appendCustomEvents
 
 # This is only an example!
 Transition = namedtuple('Transition',
@@ -60,44 +60,7 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
     :param events: The events that occurred when going from  `old_game_state` to `new_game_state`
     """
     self.logger.debug(f'Encountered game event(s) {", ".join(map(repr, events))} in step {new_game_state["step"]}')
-    """
-    Idea: Add your own events to hand out rewards
-    if ...:
-        events.append(PLACEHOLDER_EVENT)
-    """
-    new_position = get_player_coordinates(new_game_state["self"])
-
-    if new_position in self.model.lastPositions:
-        events.append(VISITED_SAME_PLACE)
-        self.logger.debug(f'Custom event occurred: {VISITED_SAME_PLACE}')
-
-    if is_coin_dist_decreased(old_game_state, new_game_state):
-        events.append(COIN_DIST_DECREASED)
-        self.logger.debug(f'Custom event occurred: {COIN_DIST_DECREASED}')
-
-    if stayed_within_explosion_radius(old_game_state, new_game_state):
-        events.append(STAYED_WITHIN_EXPLOSION_RADIUS)
-        self.logger.debug(f'Custom event occurred: {STAYED_WITHIN_EXPLOSION_RADIUS}')
-
-    if took_step_safe_direction(old_game_state, new_game_state):
-        events.append(MOVED_IN_SAFE_DIRECTION)
-        self.logger.debug(f'Custom event occurred: {MOVED_IN_SAFE_DIRECTION}')
-    
-    if got_out_of_explosion_radius(old_game_state, new_game_state):
-        events.append(GOT_OUT_OF_EXPLOSION_RADIUS)
-        self.logger.debug(f'Custom event occurred: {GOT_OUT_OF_EXPLOSION_RADIUS}')
-
-    if event.BOMB_DROPPED in events and not reachable_safe_tile_exists(new_game_state["self"][3], new_game_state["field"], new_game_state["bombs"]):        
-        events.append(DROPPED_BOMB_WITH_NO_WAY_OUT)
-        self.logger.debug(f'Custom event occurred: {DROPPED_BOMB_WITH_NO_WAY_OUT}')
-
-    if check_if_survived_explosion(old_game_state, new_game_state):
-        events.append(SURVIVED_EXPLOSION)
-        self.logger.debug(f'Custom event occurred: {SURVIVED_EXPLOSION}')
-
-    if walked_into_explosion(new_game_state):
-        events.append(WALKED_INTO_EXPLOSION)
-        self.logger.debug(f'Custom event occurred: {WALKED_INTO_EXPLOSION}')
+    appendCustomEvents(self, events, new_game_state, old_game_state)
 
     # state_to_features is defined in callbacks.py
     self.model.train(state_to_features(old_game_state),
@@ -107,6 +70,8 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
                      old_game_state["round"])
     self.transitions.append(Transition(state_to_features(old_game_state), self_action, state_to_features(new_game_state), reward_from_events(self, events)))
 
+	# Save last player position
+    new_position = get_player_coordinates(new_game_state["self"])
     self.model.update_last_positions(new_position)
 
 def end_of_round(self, last_game_state: dict, last_action: str, events: List[str]):
@@ -206,105 +171,6 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
     self.logger.info(f"Gained {total_reward} total reward for events {', '.join(event_sequence)}")
     return total_reward
 
-def is_coin_dist_decreased(old_state, new_state):
-    """
-    Checks whether the agent moved towards a coin.
-    """
-    old_min_d = find_min_coin_distance(old_state["coins"], *old_state["self"][3])
-    new_min_d = find_min_coin_distance(new_state["coins"], *new_state["self"][3])
-
-    return new_min_d < old_min_d
-
-def took_step_safe_direction(old_state, new_state):
-    """
-    Checks whether the agent moved away from a dangerous bomb.
-    """
-    bomb = find_closest_dangerous_bomb(old_state["bombs"], old_state["field"], old_state["self"][3])
-    if bomb == None:
-        return False
-    old_dist = np.linalg.norm(np.array((old_state["self"][3][0], old_state["self"][3][1])) - np.array((bomb[0][0], bomb[0][1])))
-    new_dist = np.linalg.norm(np.array((new_state["self"][3][0], new_state["self"][3][1])) - np.array((bomb[0][0], bomb[0][1])))
-
-    return old_dist < new_dist
-
-def stayed_within_explosion_radius(old_state, new_state):
-    """
-    Checks whether the agent continues to be in the radius of an explosion.
-    """
-    if not within_explosion_radius(old_state["self"][0][0], old_state["self"][0][1], old_state["field"], old_state["bombs"]): return False
-    else:
-        if within_explosion_radius(new_state["self"][0][0], new_state["self"][0][1], new_state["field"], new_state["bombs"]): return True
-        else: return False
-
-def got_out_of_explosion_radius(old_state, new_state):
-    if not within_explosion_radius(old_state["self"][0][0], old_state["self"][0][1], old_state["field"], old_state["bombs"]): return False
-    else:
-        if within_explosion_radius(new_state["self"][0][0], new_state["self"][0][1], new_state["field"], new_state["bombs"]): return False
-        else: return True
-
-""" def reachable_safe_tile_exists(player_coords, field):
-    x, y = player_coords[0], player_coords[1]
-
-    print(x, y, field)
-    for i in range(1, ARENA_WIDTH):
-        if y+i >= ARENA_WIDTH: break
-        if field[x+1][y+i] == 0:
-            return True
-        if field[x-1][y+i] == 0:
-            return True
-            
-    for i in range(1, ARENA_WIDTH):
-        if y-i >= ARENA_WIDTH: break
-        if field[x+1][y-i] == 0:
-            return True
-        if field[x-1][y-i] == 0:
-            return True
-    
-    for i in range(1, ARENA_LENGTH):
-        if x+i >= ARENA_LENGTH: break
-        if field[x+i][y+1] == 0:
-            return True
-        if field[x+i][y-1] == 0:
-            return True
-    
-    for i in range(1, ARENA_LENGTH):
-        if x-i >= ARENA_LENGTH: break
-        if field[x-i][y+1] == 0:
-            return True
-        if field[x-i][y-1] == 0:
-            return True
-    
-    return False """
-
-
-
-def reachable_safe_tile_exists(player_coords, field, bombs):
-    dangerous_bomb = find_closest_dangerous_bomb(bombs, field, player_coords)
-    if dangerous_bomb == None:
-        return None
-    radius = get_blast_coords(dangerous_bomb[0], field)
-    reachable_tiles = get_reachable_tiles(player_coords, field)
-    
-    for tile in reachable_tiles:
-        if tile not in radius:
-            return True
-    else: return False
-
-def check_if_survived_explosion(old_state, new_state):
-    """
-    Checks if an explosion was survuved. MAY NOT WORK RELIABLY WITH MULTIPLE AGENTS!
-    """
-    if np.sum(old_state["explosion_map"]) != 0 and np.sum(new_state["explosion_map"]) == 0:
-        return True
-    else:
-        return False
-    
-def walked_into_explosion(new_state):
-    new_coords = get_player_coordinates(new_state["self"])
-
-    if new_state["explosion_map"][new_coords[0]][new_coords[1]] != 0:
-        return True
-    else: return False
 
     
 

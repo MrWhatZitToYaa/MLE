@@ -20,8 +20,11 @@ class QLearning:
         self.last_decayed_in_round = 0
         self.last_round = 0
         
+		# Q Table related things
         self.total_reward = 0
         self.q_table = {}
+        
+		# ?
         self.lastPositions = [(np.NINF, np.NINF), (np.inf,np.inf), (np.inf, np.inf)]
         
     def action_to_actionNum(self, action):
@@ -42,8 +45,6 @@ class QLearning:
         """
         Returns action for a given state
         """
-        # probabilistic choice of action
-    	#next_action = np.random.choice(ACTIONS, self.get_qValues_for_state(state).numpy())
 
         # choose action with maximum reward or random action if all qValues are the same
         qValues = self.get_qValues_for_state(state)
@@ -51,6 +52,8 @@ class QLearning:
             next_action = np.random.choice(ACTIONS, p=PROBABILITIES_FOR_ACTIONS)
         else:
             next_action = ACTIONS[np.argmax(qValues)]
+        	# probabilistic choice of action
+    		#next_action = np.random.choice(ACTIONS, self.get_qValues_for_state(state).numpy())
             
         return next_action
     
@@ -74,7 +77,7 @@ class QLearning:
 
     def decay_exploration_prob(self, round_number):
         """
-        Reduces the exploration probability for each traning round gradually
+        Reduces the exploration probability for each training round gradually
         """
         
         if(not self.decay_active):
