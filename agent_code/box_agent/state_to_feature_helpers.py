@@ -52,7 +52,7 @@ def get_area_around_player(field, player):
 	# Add area_around_player to feature_vector
     return tuple(area_around_player.flatten())
 
-def find_min_coin_coordinate(coins: list, player):
+def find_min_coin_relative_coordinate(coins: list, player):
     playerX, playerY = get_player_coordinates(player)
 
     min_x = ARENA_WIDTH
@@ -73,6 +73,30 @@ def find_min_coin_distance(coins: list, playerX, playerY):
         if d < min_d:
             min_d = d
     return min_d
+
+def find_min_bomb_relative_coordinate(bomb: tuple, player):
+    playerX, playerY = get_player_coordinates(player)
+    bombX, bombY = bomb[0]
+
+    min_x = bombX - playerX
+    min_y = bombY - playerY
+    
+    return (min_x, min_y)
+
+def get_min_bomb_relative_coordinate(bombs, field, player):
+    playerX, playerY = get_player_coordinates(player)
+    dangerous_bomb = find_closest_dangerous_bomb(bombs, field, (playerX, playerY))
+    
+	# Add distance to dangerous bomb
+    bombDistX = ARENA_WIDTH
+    bombDistY = ARENA_LENGTH
+	
+    if dangerous_bomb == None:
+        pass
+    else:
+        bombDistX, bombDistY = find_min_bomb_relative_coordinate(dangerous_bomb, player)
+        
+    return (bombDistX, bombDistY)
 
 def get_blast_coords(bomb_coords, field):
     x, y = bomb_coords[0], bomb_coords[1]
@@ -127,6 +151,20 @@ def find_closest_dangerous_bomb(bombs, field, player_coords):
             closest_dangerous_bomb = bomb
     return closest_dangerous_bomb
 
+
+def check_for_explosions_around(explosions, player):
+    playerX, playerY = get_player_coordinates(player)
+    
+    explosion_near_player = False
+    
+    num_rows, num_cols = explosions.shape
+    for i in range(num_rows):
+        for j in range(num_cols):
+            if((abs(i - playerY) <= 1) and (abs(j - playerX) <= 1)):
+                if (explosions[i][j] != 0):
+                    explosion_near_player = True
+
+    return (explosion_near_player,)
 
 def get_reachable_tiles(player_coords, field):
     x, y = player_coords[0], player_coords[1]

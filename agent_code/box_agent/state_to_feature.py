@@ -9,7 +9,7 @@ def state_to_features(game_state: dict) -> int:
      :param game_state:  A dictionary describing the current game board.
      :return: int
      """
-     return state_to_features_V12(game_state)
+     return state_to_features_V13(game_state)
 
 def state_to_features_V9(game_state: dict) -> int:
     """
@@ -33,7 +33,7 @@ def state_to_features_V9(game_state: dict) -> int:
 
     # Determin distance to nearest coin
 	# Add area_around_player to feature_vector
-    feature_vector += find_min_coin_coordinate(coins, player)
+    feature_vector += find_min_coin_relative_coordinate(coins, player)
 
     # Avoid bomb
 
@@ -83,7 +83,7 @@ def state_to_features_V10(game_state: dict) -> int:
     feature_vector += tuple(field.flatten())
     # Determin distance to nearest coin
 	# Add area_around_player to feature_vector
-    feature_vector += find_min_coin_coordinate(coins, player)
+    feature_vector += find_min_coin_relative_coordinate(coins, player)
 
     # Avoid bomb
     playerX, playerY = get_player_coordinates(player)
@@ -125,7 +125,7 @@ def state_to_features_V11(game_state: dict) -> int:
 
     # Determin distance to nearest coin
 	# Add area_around_player to feature_vector
-    feature_vector += find_min_coin_coordinate(coins, player)
+    feature_vector += find_min_coin_relative_coordinate(coins, player)
 
     # Avoid bomb
     playerX, playerY = get_player_coordinates(player)
@@ -172,7 +172,7 @@ def state_to_features_V12(game_state: dict) -> int:
 
     # Determin distance to nearest coin
 	# Add area_around_player to feature_vector
-    feature_vector += find_min_coin_coordinate(coins, player)
+    feature_vector += find_min_coin_relative_coordinate(coins, player)
 
     # Avoid bomb
     playerX, playerY = get_player_coordinates(player)
@@ -185,6 +185,41 @@ def state_to_features_V12(game_state: dict) -> int:
 
     feature_vector += tuple([dist_to_closest_bomb])
     feature_vector += tuple(explosions.flatten())
+
+	# Return hash value of area around player
+    key = hash(feature_vector)
+    return key
+
+def state_to_features_V13(game_state: dict) -> int:
+    """
+    Converts the game state into a number
+    Try to calcualte the distance to the nearest bomb and maximize it
+    Note: 
+    :param game_state:  A dictionary describing the current game board.
+    :return: int
+    """
+    
+    field = game_state["field"]
+    coins = game_state["coins"]
+    player = game_state["self"]
+    bombs = game_state["bombs"]
+    explosions = game_state["explosion_map"]
+
+	# Stores all the relevant information that is passed on to the agent
+    feature_vector = ()
+    
+	# Add area_around_player to feature_vector
+    feature_vector = get_area_around_player(field, player)
+    
+	# Determin distance to nearest coin
+	# Add area_around_player to feature_vector
+    feature_vector += find_min_coin_relative_coordinate(coins, player)    
+
+    # Avoid bomb
+    feature_vector += get_min_bomb_relative_coordinate(bombs, field, player)
+    
+	# Check for explosions around you
+    feature_vector += check_for_explosions_around(explosions, player)
 
 	# Return hash value of area around player
     key = hash(feature_vector)

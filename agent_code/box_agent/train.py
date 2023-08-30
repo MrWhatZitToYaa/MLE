@@ -125,42 +125,44 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
     Returns total reward for a sequence of events
     """
     rewards = {
-        event.MOVED_LEFT: -1,
-        event.MOVED_RIGHT: -1,
-        event.MOVED_UP: -1,
-        event.MOVED_DOWN: -1,
-        event.WAITED: -20,
+        event.MOVED_LEFT: -5,
+        event.MOVED_RIGHT: -5,
+        event.MOVED_UP: -5,
+        event.MOVED_DOWN: -5,
+        event.WAITED: -5,
         event.INVALID_ACTION: -50,
 
-        event.BOMB_DROPPED: 15,
+        event.BOMB_DROPPED: -5,
         event.BOMB_EXPLODED: 0,
 
-        event.CRATE_DESTROYED: 15,
-        event.COIN_FOUND: 10,
+        event.CRATE_DESTROYED: 20,
+        event.COIN_FOUND: 50,
         event.COIN_COLLECTED: 100,
 
         event.KILLED_OPPONENT: 0,
-        event.KILLED_SELF: -500,
+        event.KILLED_SELF: -300,
 
-        event.GOT_KILLED: -500,
+        event.GOT_KILLED: -200,
         event.OPPONENT_ELIMINATED: 200,
-        event.SURVIVED_ROUND: 0,
+        event.SURVIVED_ROUND: 50,
 
         # Custom events
 
         # Collect coins
         COIN_DIST_DECREASED: 5,
-
+        
+		BOMB_DIST_INCREASED: 10,
+        
         # Blow up Crates
-        STAYED_WITHIN_EXPLOSION_RADIUS: 0,
-        MOVED_IN_SAFE_DIRECTION: 10,
-        GOT_OUT_OF_EXPLOSION_RADIUS: 0,
-        DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
-        SURVIVED_EXPLOSION: 50,
-        WALKED_INTO_EXPLOSION: -50,
+        # STAYED_WITHIN_EXPLOSION_RADIUS: 0,
+        # MOVED_IN_SAFE_DIRECTION: 10,
+        # GOT_OUT_OF_EXPLOSION_RADIUS: 0,
+        # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
+        # SURVIVED_EXPLOSION: 50,
+        # WALKED_INTO_EXPLOSION: -50,
         
         # General Movement
-        VISITED_SAME_PLACE: -20
+        # VISITED_SAME_PLACE: -20
     }
     
     total_reward = 0

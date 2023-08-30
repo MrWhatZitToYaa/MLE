@@ -5,13 +5,18 @@ from .state_to_feature_helpers import *
 def appendCustomEvents(self, events, new_game_state, old_game_state):
     new_position = get_player_coordinates(new_game_state["self"])
 
-    if new_position in self.model.lastPositions:
-          events.append(VISITED_SAME_PLACE)
-          self.logger.debug(f'Custom event occurred: {VISITED_SAME_PLACE}')
-    
     if is_coin_dist_decreased(old_game_state, new_game_state):
             events.append(COIN_DIST_DECREASED)
             self.logger.debug(f'Custom event occurred: {COIN_DIST_DECREASED}')
+            
+    if is_coin_dist_decreased(old_game_state, new_game_state):
+            events.append(BOMB_DIST_INCREASED)
+            self.logger.debug(f'Custom event occurred: {BOMB_DIST_INCREASED}')
+            
+    """        
+    if new_position in self.model.lastPositions:
+          events.append(VISITED_SAME_PLACE)
+          self.logger.debug(f'Custom event occurred: {VISITED_SAME_PLACE}')
 
     if stayed_within_explosion_radius(old_game_state, new_game_state):
         events.append(STAYED_WITHIN_EXPLOSION_RADIUS)
@@ -36,6 +41,7 @@ def appendCustomEvents(self, events, new_game_state, old_game_state):
     if walked_into_explosion(new_game_state):
         events.append(WALKED_INTO_EXPLOSION)
         self.logger.debug(f'Custom event occurred: {WALKED_INTO_EXPLOSION}')
+    """
 
     return events
 
@@ -49,6 +55,15 @@ def is_coin_dist_decreased(old_state, new_state):
     new_min_d = find_min_coin_distance(new_state["coins"], *new_state["self"][3])
 
     return new_min_d < old_min_d
+
+def is_bomb_dist_increased(old_state, new_state):
+    """
+    Checks whether the agent moved away from bomb.
+    """
+    old_max_d = get_min_bomb_relative_coordinate(old_state["bombs"], old_state["field"], old_state["self"][3])
+    new_max_d = get_min_bomb_relative_coordinate(new_state["bombs"], new_state["field"], new_state["self"][3])
+
+    return new_max_d > old_max_d
 
 def took_step_safe_direction(old_state, new_state):
     """
