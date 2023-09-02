@@ -22,8 +22,8 @@ class Model(nn.Module):
 
     def forward(self, x):
         # shape of images: (batch_size, channels, height, width)
-        x = x.flatten()
-        output = self.model(state_to_features(x))
+        #x = x.flatten()
+        output = self.model(torch.Tensor(state_to_features(x)))
 
         return output
     
