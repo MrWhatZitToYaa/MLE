@@ -2,31 +2,34 @@ from enum import Enum
 
 ACTIONS = ['UP', 'RIGHT', 'DOWN', 'LEFT', 'WAIT', 'BOMB']
 NUM_OF_ACTIONS = len(ACTIONS)
-#PROBABILITIES_FOR_ACTIONS = [1/6, 1/6, 1/6, 1/6, 1/6, 1/6]
-PROBABILITIES_FOR_ACTIONS = [0.15, 0.15, 0.15, 0.15, 0.15, 0.25]
+PROBABILITIES_FOR_ACTIONS = [1/6, 1/6, 1/6, 1/6, 1/6, 1/6]
+#PROBABILITIES_FOR_ACTIONS = [0.15, 0.15, 0.15, 0.15, 0.15, 0.25]
 
 # arena is 16 x 16 and each pixel can be occupied by 9 possible blocks
 ARENA_LENGTH = 17
 ARENA_WIDTH = 17
 ARENA_SIZE = ARENA_LENGTH * ARENA_WIDTH
-NUMBER_OF_BLOCKS = 11
+NUMBER_OF_BLOCKS = 14
 
 NUM_OF_STATES = ARENA_SIZE * NUMBER_OF_BLOCKS
 
 INPUT_CHANNELS = 289
 
 class list_of_blocks(Enum):
-    EMPTY = 		0
-    BRICK = 		1
-    CRATE = 		2
-    COIN =			3
-    ENEMY =			4
-    PLAYER = 		5
-    EXPLOSION =		6
-    SMOKE = 		7
-    BOMB_TICK0 =	8
-    BOMB_TICK1 =	9
-    BOMB_TICK2 =	10
+    EMPTY =         0
+    BRICK =         1
+    CRATE =         2
+    COIN =            3
+    ENEMY =            4
+    PLAYER =         5
+    EXPLOSION0 =    6
+    EXPLOSION1 =    7
+    EXPLOSION2 =    8
+    SMOKE =         9
+    BOMB_TICK0 =    10
+    BOMB_TICK1 =    11
+    BOMB_TICK2 =    12
+    BOMB_TICK3 =    13
 
 # General model parameters
 LEARNING_RATE = 0.1
