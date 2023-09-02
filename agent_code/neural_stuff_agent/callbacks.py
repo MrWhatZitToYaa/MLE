@@ -18,8 +18,8 @@ def setup(self):
         self.logger.info("Setting up model from scratch.")
         weights = np.random.rand(len(ACTIONS))
         self.model = Model(INPUT_CHANNELS, NUM_OF_ACTIONS)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr = LEARNING_RATE)
-        self.criterion = nn.CrossEntropyLoss()
+        #self.optimizer = torch.optim.Adam(self.model.parameters(), lr = LEARNING_RATE)
+        #self.criterion = nn.CrossEntropyLoss()
     else:
         self.logger.info("Loading model from saved state.")
         with open("my-saved-model.pt", "rb") as file:
@@ -47,6 +47,6 @@ def act(self, game_state: dict) -> str:
 
     self.logger.debug("Querying model for action.")
     state = state_to_features(game_state)
-    return np.random.choice(ACTIONS, p=self.model.forward(game_state)[0].detach().numpy())
+    return np.random.choice(ACTIONS, p=self.model.forward(state)[0].detach().numpy())
 
 
