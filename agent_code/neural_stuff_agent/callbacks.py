@@ -45,7 +45,7 @@ def act(self, game_state: dict) -> str:
 
     self.logger.debug("Querying model for action.")
     state = state_to_features(game_state)
-    prob = self.model.forward(state)[0].detach().numpy()
+    prob = self.model.forward(state).detach().numpy()
     return np.random.choice(ACTIONS, p=prob)
 
 
