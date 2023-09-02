@@ -26,7 +26,7 @@ def setup_training(self):
     # Example: Setup an array that will note transition tuples
     # (s, a, r, s')
     self.model.train() 
-    hyperparameters = [self.model.learning_rate,
+    """hyperparameters = [self.model.learning_rate,
                        self.model.discount_factor,
                        self.model.exploration_prob,
                        self.model.decay_active,
@@ -35,7 +35,7 @@ def setup_training(self):
 
     # Store Hyperparameters
     with open("./monitor_training/hyperparameters.pkl", "wb") as file:
-        pickle.dump(hyperparameters, file)
+        pickle.dump(hyperparameters, file)"""
 
 def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_state: dict, events: List[str]):
     """
