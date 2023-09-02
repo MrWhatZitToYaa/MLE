@@ -18,8 +18,6 @@ def setup(self):
         self.logger.info("Setting up model from scratch.")
         weights = np.random.rand(len(ACTIONS))
         self.model = Model(INPUT_CHANNELS, NUM_OF_ACTIONS)
-        #self.optimizer = torch.optim.Adam(self.model.parameters(), lr = LEARNING_RATE)
-        #self.criterion = nn.CrossEntropyLoss()
     else:
         self.logger.info("Loading model from saved state.")
         with open("my-saved-model.pt", "rb") as file:

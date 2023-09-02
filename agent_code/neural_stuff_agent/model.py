@@ -37,9 +37,7 @@ class Model(nn.Module):
 
     def forward(self, x):
         # shape of images: (batch_size, channels, height, width)
-        #x = x.flatten()
         output = self.model(torch.Tensor(x))
-        #output = F.softmax(x)
         
         return output
     
