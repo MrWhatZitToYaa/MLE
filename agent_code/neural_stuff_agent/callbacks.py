@@ -46,7 +46,7 @@ def act(self, game_state: dict) -> str:
         return np.random.choice(ACTIONS, p=PROBABILITIES_FOR_ACTIONS)
 
     self.logger.debug("Querying model for action.")
-    state = torch.Tensor(state_to_features(game_state))
+    state = state_to_features(game_state)
     return np.random.choice(ACTIONS, p=self.model.forward(state)[0].detach().numpy())
 
 
