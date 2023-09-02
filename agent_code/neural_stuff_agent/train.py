@@ -58,7 +58,7 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
     self.logger.debug(f'Encountered game event(s) {", ".join(map(repr, events))} in step {new_game_state["step"]}')
     appendCustomEvents(self, events, new_game_state, old_game_state)
 
-    action = self.model.forward(new_game_state)
+    action = self.model.forward(state_to_features(new_game_state))
     train_step(old_game_state, action, new_game_state, reward_from_events(self, events))
 
 
