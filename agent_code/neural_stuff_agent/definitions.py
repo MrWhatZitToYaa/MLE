@@ -19,9 +19,9 @@ class list_of_blocks(Enum):
     EMPTY =         0
     BRICK =         1
     CRATE =         2
-    COIN =            3
-    ENEMY =            4
-    PLAYER =         5
+    COIN =          3
+    ENEMY =         4
+    PLAYER =        5
     EXPLOSION0 =    6
     EXPLOSION1 =    7
     EXPLOSION2 =    8
