@@ -15,9 +15,13 @@ class Model(nn.Module):
 
         for i in range(len(channels)-1):
             self.model.add_module(
-                f'conv{i}',
+                f'linear{i}',
                 nn.Linear(channels[i], channels[i+1])
             )
+            self.model.add_module(
+                f'relu{i}',
+                nn.ReLU() )
+        self.model.add_module('Softmax', nn.Softmax(dim=1))
         weights = np.random.rand(len(ACTIONS))
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr = LEARNING_RATE)
         self.criterion = nn.CrossEntropyLoss()
@@ -25,8 +29,8 @@ class Model(nn.Module):
     def forward(self, x):
         # shape of images: (batch_size, channels, height, width)
         #x = x.flatten()
-        x = self.model(torch.Tensor(x))
-        output = F.softmax(x)
+        output = self.model(torch.Tensor(x))
+        #output = F.softmax(x)
         
         return output
     
