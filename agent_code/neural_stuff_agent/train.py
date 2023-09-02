@@ -59,7 +59,7 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
     appendCustomEvents(self, events, new_game_state, old_game_state)
 
     action = self.model.forward(state_to_features(new_game_state))
-    train_step(old_game_state, action, new_game_state, reward_from_events(self, events))
+    train_step(self, old_game_state, action, new_game_state, reward_from_events(self, events))
 
 
 def end_of_round(self, last_game_state: dict, last_action: str, events: List[str]):
