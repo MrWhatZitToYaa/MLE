@@ -5,6 +5,8 @@ import torch.optim as optim
 from .state_to_feature import *
 from .definitions import *
 from .state_to_feature import *
+import torch.nn.functional as F
+
 class Model(nn.Module):
     def __init__(self, input_channels, num_classes):
         super(Model, self).__init__()
@@ -23,8 +25,9 @@ class Model(nn.Module):
     def forward(self, x):
         # shape of images: (batch_size, channels, height, width)
         #x = x.flatten()
-        output = self.model(torch.Tensor(x))
-
+        x = self.model(torch.Tensor(x))
+        output = F.softmax(x)
+        
         return output
     
     
