@@ -13,24 +13,13 @@ class Model(nn.Module):
         self.model = nn.Sequential()
         #channels = [input_channels, 64, 32, num_classes]
         self.model = nn.Sequential(
-            nn.Linear(input_channels, 64),  # def 2048, 512, 15*15 is image size after conv
+            nn.Linear(input_channels, 64),
             nn.ReLU(),
             nn.Linear(64, 32),
             nn.ReLU(),
             nn.Linear(32, num_classes),
-            nn.Softmax(dim=0)
+            nn.Softmax(dim=1)
         )
-        '''
-        for i in range(len(channels)-1):
-            self.model.add_module(
-                f'linear{i}',
-                nn.Linear(channels[i], channels[i+1])
-            )
-            self.model.add_module(
-                f'relu{i}',
-                nn.ReLU() )
-        self.model.add_module('Softmax', nn.Softmax(dim=0.5))
-        '''
         weights = np.random.rand(len(ACTIONS))
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr = LEARNING_RATE)
         self.criterion = nn.CrossEntropyLoss()
