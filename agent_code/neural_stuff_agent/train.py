@@ -26,8 +26,7 @@ def setup_training(self):
     # Example: Setup an array that will note transition tuples
     # (s, a, r, s')
     self.model.train()
-    '''
-    hyperparameters = [self.model.learning_rate,
+    """hyperparameters = [self.model.learning_rate,
                        self.model.discount_factor,
                        self.model.exploration_prob,
                        self.model.decay_active,
@@ -36,8 +35,9 @@ def setup_training(self):
 
     # Store Hyperparameters
     with open("./monitor_training/hyperparameters.pkl", "wb") as file:
-        pickle.dump(hyperparameters, file)
-    '''
+        pickle.dump(hyperparameters, file)"""
+
+
 def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_state: dict, events: List[str]):
     """
     Called once per step to allow intermediate rewards based on game events.
@@ -61,6 +61,7 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
     action = F.softmax(self.model.forward(new_game_state))
     train_step(old_game_state, action, new_game_state, reward_from_events(self, events))
 
+
 def end_of_round(self, last_game_state: dict, last_action: str, events: List[str]):
     """
     Called at the end of each game or when the agent died to hand out final rewards.
@@ -78,30 +79,31 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     :param new_game_state: The state the agent is in now.
     :param events: The events that occurred when going from  `old_game_state` to `new_game_state`
     """
-    
+
     self.logger.debug(f'Encountered event(s) {", ".join(map(repr, events))} in final step')
 
     # Store the model
     with open("my-saved-model.pt", "wb") as file:
         pickle.dump(self.model, file)
 
-	# Store rewards
-	# Add rewards of final steps, since there is no training
+    # Store rewards
+    # Add rewards of final steps, since there is no training
     self.model.total_reward += reward_from_events(self, events)
     self.total_rewards.append(self.model.total_reward)
     with open("./monitor_training/total_rewards.pkl", "wb") as file:
         pickle.dump(self.total_rewards, file)
     # Set total rewards to 0 for next round
     self.model.total_reward = 0
-        
-	# Store qTable size
+
+    # Store qTable size
     with open("./monitor_training/qTableSize.pkl", "wb") as file:
         pickle.dump(self.total_qTable_size, file)
-        
-	# Store exploration probability
+
+    # Store exploration probability
     self.exploration_Probabilities.append(self.model.exploration_prob)
     with open("./monitor_training/exploration_probability.pkl", "wb") as file:
         pickle.dump(self.exploration_Probabilities, file)
+
 
 def reward_from_events(self, event_sequence: List[str]) -> int:
     """
@@ -133,9 +135,9 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
 
         # Collect coins
         COIN_DIST_DECREASED: 5,
-        
-		BOMB_DIST_INCREASED: 10,
-        
+
+        BOMB_DIST_INCREASED: 10,
+
         # Blow up Crates
         # STAYED_WITHIN_EXPLOSION_RADIUS: 0,
         # MOVED_IN_SAFE_DIRECTION: 10,
@@ -143,18 +145,19 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
         # SURVIVED_EXPLOSION: 50,
         # WALKED_INTO_EXPLOSION: -50,
-        
+
         # General Movement
         # VISITED_SAME_PLACE: -20
     }
-    
+
     total_reward = 0
     for instance in event_sequence:
         if instance in rewards:
             total_reward += rewards[instance]
-            
+
     self.logger.info(f"Gained {total_reward} total reward for events {', '.join(event_sequence)}")
     return total_reward
+
 
 def train_step(self, old_state, action, new_state, reward):
     if action is not None:
@@ -165,7 +168,7 @@ def train_step(self, old_state, action, new_state, reward):
         next_state_action_value = self.model.forward(new_state).max().unsqueeze(0)
         expected_state_action_value = (next_state_action_value * self.gamma) + reward
 
-        loss = self.criterion(state_action_value.to(self.device), expected_state_action_value.to(self.device))    
+        loss = self.criterion(state_action_value.to(self.device), expected_state_action_value.to(self.device))
 
         self.optimizer.zero_grad()
         loss.backward()
