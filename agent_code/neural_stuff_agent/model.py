@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-
+from .state_to_feature import *
 from .definitions import *
 
 class Model(nn.Module):
@@ -20,7 +20,7 @@ class Model(nn.Module):
     def forward(self, x):
         # shape of images: (batch_size, channels, height, width)
         x = x.flatten()
-        output = self.model(x)
+        output = self.model(state_to_features(x))
 
         return output
     
