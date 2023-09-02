@@ -95,6 +95,6 @@ def state_to_features_V14(game_state: dict) -> int:
     modified_field = modified_field.flatten()
     
 	# Can throw bomb
-    np.append(modified_field, [player[2]])
+    modified_field = np.append(modified_field, [player[2]])
     
     return tuple(modified_field)
