@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.spatial.distance import cdist
 
 from .definitions import *
 
@@ -69,7 +70,12 @@ def find_min_coin_relative_coordinate(coins: list, player):
 def find_min_coin_distance(coins: list, playerX, playerY):
     min_d = ARENA_WIDTH + ARENA_LENGTH
     for (coinX, coinY) in coins:
-        d = np.linalg.norm(np.array((playerX, playerY)) - np.array((coinX, coinY)))
+        #d = np.linalg.norm(np.array((playerX, playerY)) - np.array((coinX, coinY)))
+        #d = cdist(np.array(playerX, playerY), np.array(coinX, coinY), 'cityblock')
+        # Manhattan dist
+        player_arr = np.array((playerX, playerY))
+        coin_arr = np.array((coinX, coinY))
+        d = sum(abs(player_arr-coin_arr) for player_arr, coin_arr in zip(player_arr,coin_arr))
         if d < min_d:
             min_d = d
     return min_d
@@ -145,7 +151,11 @@ def find_closest_dangerous_bomb(bombs, field, player_coords):
     closest_dangerous_bomb = None
     min_d = ARENA_LENGTH
     for bomb in dangerous_bombs:
-        d = np.linalg.norm(np.array((player_coords[0], player_coords[1])) - np.array((bomb[0][0], bomb[0][1])))
+        #d = np.linalg.norm(np.array((player_coords[0], player_coords[1])) - np.array((bomb[0][0], bomb[0][1])))
+        # Manhattan dist
+        player_arr = np.array((player_coords[0], player_coords[1]))
+        bomb_arr = np.array((bomb[0][0], bomb[0][1]))
+        d = sum(abs(player_arr - coin_arr) for player_arr, coin_arr in zip(player_arr, bomb_arr))
         if d < min_d:
             min_d = d
             closest_dangerous_bomb = bomb
