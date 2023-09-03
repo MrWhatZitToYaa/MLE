@@ -14,7 +14,7 @@ NUMBER_OF_BLOCKS = 14
 NUM_OF_STATES = ARENA_SIZE * NUMBER_OF_BLOCKS
 
 INPUT_CHANNELS = 290
-
+MAX_LEN_TRANSITIONS = 3
 class list_of_blocks(Enum):
     EMPTY =         0
     BRICK =         1

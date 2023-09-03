@@ -13,7 +13,6 @@ class Model(nn.Module):
         self.model = nn.Sequential()
         #channels = [input_channels, 64, 32, num_classes]
         self.model = nn.Sequential(
-            #nn.Flatten(),
             nn.Linear(input_channels, 64),
             nn.ReLU(),
             nn.Linear(64, 32),
@@ -26,7 +25,7 @@ class Model(nn.Module):
         self.criterion = nn.CrossEntropyLoss()
 
     def forward(self, x):
-        print(x)
+        #print(x)
         output = self.model(torch.Tensor(x))
         
         return output

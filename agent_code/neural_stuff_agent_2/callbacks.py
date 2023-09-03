@@ -37,18 +37,18 @@ def act(self, game_state: dict) -> str:
     :return: The action to take as a string.
     """
     # Exploration vs exploitation
-    exploration_prob = 0.1
+    # fix exploration prob in model
+    exploration_prob = 0.9
     if self.train and random.random() < exploration_prob:
         self.logger.debug("Choosing action purely at random.")
-        # 80%: walk in any direction. 10% wait. 10% bomb.
         return np.random.choice(ACTIONS, p=PROBABILITIES_FOR_ACTIONS)
 
     self.logger.debug("Querying model for action.")
     state = state_to_features(game_state)
     prob = self.model.forward(state).detach().numpy()
-    print(prob)
+    #print(prob)
     #action = np.random.choice(ACTIONS, p=prob)
-    print(ACTIONS[np.argmax(prob)])
+    #print(ACTIONS[np.argmax(prob)])
     return ACTIONS[np.argmax(prob)]
 
 
