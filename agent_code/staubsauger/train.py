@@ -35,8 +35,8 @@ def setup_training(self):
 
     # Example: Setup an array that will note transition tuples
     # (s, a, r, s')
-    self.transitions = deque(maxlen=NUMBER_OF_RELEVANT_STATES + 1)
-    self.model.number_of_previous_states = NUMBER_OF_RELEVANT_STATES + 1
+    self.transitions = deque(maxlen=NUMBER_OF_RELEVANT_STATES)
+    self.model.number_of_previous_states = NUMBER_OF_RELEVANT_STATES
     
 	# Load the plot data back into memory if continue-training is true
     self.model.total_rewards = []
@@ -56,7 +56,7 @@ def setup_training(self):
                        self.decay_active,
                        self.epsilon_decay,
                        self.epsilon_decay_after_rounds,
-                       self.model.number_of_previous_states - 1]
+                       self.model.number_of_previous_states]
 
     # Store Hyperparameters
     with open("./monitor_training/hyperparameters.pkl", "wb") as file:
