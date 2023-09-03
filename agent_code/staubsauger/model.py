@@ -7,19 +7,11 @@ import collections
 from .definitions import *
 
 class QLearning:
-    def __init__(self, num_actions, learning_rate, discount_factor, startin_exploration_probability,
+    def __init__(self, num_actions, startin_exploration_probability,
                  epsilon_decay, epsilon_decay_after_rounds, decay_active):
         self.num_actions = num_actions
-        self.learning_rate = learning_rate
-        self.discount_factor = discount_factor
         
-        # Variables for the decay of the exploration probability
-        self.exploration_prob = startin_exploration_probability
-        self.decay_active = decay_active
-        self.epsilon_decay = epsilon_decay
-        self.epsilon_decay_after_rounds = epsilon_decay_after_rounds
-        self.last_decayed_in_round = 0
-        self.last_round = 0
+        
         
 		# For plotting
         self.total_reward = 0

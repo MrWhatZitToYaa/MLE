@@ -19,6 +19,18 @@ def setup_training(self):
 
     :param self: This object is passed to all callbacks and you can set arbitrary values.
     """
+	# Training parameters
+    self.learning_rate = LEARNING_RATE
+    self.discount_factor = DISCOUNT_FACTOR
+    
+	# Variables for the decay of the exploration probability
+    self.exploration_prob = STARTING_EXPLORATION_PROBABILITY
+    self.decay_active = EXPLORATION_DECAY_ACTIVE
+    self.epsilon_decay = EPSILON_DECAY
+    self.epsilon_decay_after_rounds = DECAY_AFTER_ROUNDS
+    self.last_decayed_in_round = 0
+    self.last_round = 0
+
     # Example: Setup an array that will note transition tuples
     # (s, a, r, s')
     self.transitions = deque(maxlen=NUMBER_OF_RELEVANT_STATES)
