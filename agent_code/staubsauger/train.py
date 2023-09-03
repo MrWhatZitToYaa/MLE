@@ -30,6 +30,9 @@ def setup_training(self):
     self.epsilon_decay_after_rounds = DECAY_AFTER_ROUNDS
     self.last_decayed_in_round = 0
     self.last_round = 0
+    
+	# For plotting
+    self.total_reward = 0
 
     # Example: Setup an array that will note transition tuples
     # (s, a, r, s')

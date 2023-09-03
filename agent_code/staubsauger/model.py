@@ -7,14 +7,9 @@ import collections
 from .definitions import *
 
 class QLearning:
-    def __init__(self, num_actions, startin_exploration_probability,
-                 epsilon_decay, epsilon_decay_after_rounds, decay_active):
+    def __init__(self, num_actions):
         self.num_actions = num_actions
         
-        
-        
-		# For plotting
-        self.total_reward = 0
         # Q-table related
         self.q_table = {}
         
