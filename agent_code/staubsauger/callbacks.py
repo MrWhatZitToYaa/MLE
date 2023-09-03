@@ -23,8 +23,7 @@ def setup(self):
                                STARTING_EXPLORATION_PROBABILITY,
                                EPSILON_DECAY,
                                DECAY_AFTER_ROUNDS,
-                               EXPLORATION_DECAY_ACTIVE,
-                               NUMBER_OF_RELEVANT_STATES)
+                               EXPLORATION_DECAY_ACTIVE)
     else:
         self.logger.info("Loading model from saved state.")
         with open("my-saved-model.pt", "rb") as file:

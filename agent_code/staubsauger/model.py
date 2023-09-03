@@ -8,10 +8,12 @@ from .definitions import *
 
 class QLearning:
     def __init__(self, num_actions, learning_rate, discount_factor, startin_exploration_probability,
-                 epsilon_decay, epsilon_decay_after_rounds, decay_active, number_of_relevant_states):
+                 epsilon_decay, epsilon_decay_after_rounds, decay_active):
         self.num_actions = num_actions
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
+        self.last_n_states = []
+        self.n = 5
         
         # Variables for the decay of the exploration probability
         self.exploration_prob = startin_exploration_probability
@@ -23,12 +25,11 @@ class QLearning:
         
 		# For plotting
         self.total_reward = 0
-        
-		# Q-table related
-        self.number_of_previous_states = number_of_relevant_states
-        self.fill_states_counter = number_of_relevant_states
-        self.previous_states = collections.deque([])
+        # Q-table related
         self.q_table = {}
+        
+		# ?
+        self.lastPositions = [(np.NINF, np.NINF), (np.inf,np.inf), (np.inf, np.inf)]
         
     def action_to_actionNum(self, action):
         """
@@ -48,8 +49,6 @@ class QLearning:
         """
         Returns action for a given state
         """
-        # probabilistic choice of action
-    	#next_action = np.random.choice(ACTIONS, self.get_qValues_for_state(state).numpy())
 
         # choose action with maximum reward or random action if all qValues are the same
         qValues = self.get_qValues_for_state(state)
@@ -57,6 +56,8 @@ class QLearning:
             next_action = np.random.choice(ACTIONS, p=PROBABILITIES_FOR_ACTIONS)
         else:
             next_action = ACTIONS[np.argmax(qValues)]
+        	# probabilistic choice of action
+    		#next_action = np.random.choice(ACTIONS, self.get_qValues_for_state(state).numpy())
             
         return next_action
     
@@ -80,7 +81,7 @@ class QLearning:
 
     def decay_exploration_prob(self, round_number):
         """
-        Reduces the exploration probability for each traning round gradually
+        Reduces the exploration probability for each training round gradually
         """
         
         if(not self.decay_active):
@@ -95,9 +96,14 @@ class QLearning:
                 self.exploration_prob *= EPSILON_DECAY
 
     def train(self, state, action, reward, next_state, round_number):
-        self.update_q_table(state, action, reward, next_state)
+        self.last_n_states.append(next_state)
+        if len(self.last_n_states) == self.n:
+            self.update_q_table(state, action, reward, self.last_n_states.pop(0))            
         self.total_reward += reward
         
 		#decay exploration probability
         self.decay_exploration_prob(round_number)
         
+    def update_last_positions(self, position: tuple):
+        self.lastPositions[0] = self.lastPositions[1]
+        self.lastPositions[1] = position

@@ -2,17 +2,14 @@ import events as event
 from typing import List
 from collections import namedtuple, deque
 import pickle
+import numpy as np
 from .definitions import *
 from .callbacks import state_to_features
-from .state_to_feature import find_min_distance
+from .state_to_feature_helpers import *
+from .customEventAppender import appendCustomEvents
 
-# This is only an example!
 Transition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward'))
-
-# Hyper parameters -- DO modify
-TRANSITION_HISTORY_SIZE = 3  # keep only ... last transitions
-RECORD_ENEMY_TRANSITIONS = 1.0  # record enemy transitions with probability ...
 
 def setup_training(self):
     """
@@ -24,7 +21,9 @@ def setup_training(self):
     """
     # Example: Setup an array that will note transition tuples
     # (s, a, r, s')
-    self.transitions = deque(maxlen=TRANSITION_HISTORY_SIZE)
+    self.transitions = deque(maxlen=NUMBER_OF_RELEVANT_STATES)
+    self.number_of_previous_states = NUMBER_OF_RELEVANT_STATES
+    self.fill_states_counter = NUMBER_OF_RELEVANT_STATES
     
     self.total_rewards = []
     self.total_qTable_size = []
@@ -35,8 +34,7 @@ def setup_training(self):
                        self.model.exploration_prob,
                        self.model.decay_active,
                        self.model.epsilon_decay,
-                       self.model.epsilon_decay_after_rounds,
-                       self.model.number_of_previous_states]
+                       self.model.epsilon_decay_after_rounds]
 
     # Store Hyperparameters
     with open("./monitor_training/hyperparameters.pkl", "wb") as file:
@@ -60,15 +58,7 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
     :param events: The events that occurred when going from  `old_game_state` to `new_game_state`
     """
     self.logger.debug(f'Encountered game event(s) {", ".join(map(repr, events))} in step {new_game_state["step"]}')
-    """
-    Idea: Add your own events to hand out rewards
-    if ...:
-        events.append(PLACEHOLDER_EVENT)
-    """
-    if is_coin_dist_decreased(old_game_state, new_game_state):
-        events.append(COIN_DIST_DECREASED)
-        self.logger.debug(f'Custom event occurred: {COIN_DIST_DECREASED}')
-
+    appendCustomEvents(self, events, new_game_state, old_game_state)
 
     # state_to_features is defined in callbacks.py
     self.model.train(state_to_features(old_game_state),
@@ -77,6 +67,10 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
                      state_to_features(new_game_state),
                      old_game_state["round"])
     self.transitions.append(Transition(state_to_features(old_game_state), self_action, state_to_features(new_game_state), reward_from_events(self, events)))
+
+	# Save last player position
+    new_position = get_player_coordinates(new_game_state["self"])
+    self.model.update_last_positions(new_position)
 
 def end_of_round(self, last_game_state: dict, last_action: str, events: List[str]):
     """
@@ -133,24 +127,40 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         event.MOVED_RIGHT: -5,
         event.MOVED_UP: -5,
         event.MOVED_DOWN: -5,
-        event.WAITED: -10,
-        event.INVALID_ACTION: -20,
-        
-        event.BOMB_DROPPED: -100,
-        event.BOMB_EXPLODED: 0,
-        
-        event.CRATE_DESTROYED: 5,
-        event.COIN_FOUND: 10,
-		event.COIN_COLLECTED: 100,
-        
-        event.KILLED_OPPONENT: 0,
-        event.KILLED_SELF: -100,
-        
-		event.GOT_KILLED: -500,
-        event.OPPONENT_ELIMINATED: 200,
-		event.SURVIVED_ROUND: 50,
+        event.WAITED: -5,
+        event.INVALID_ACTION: -50,
 
-        COIN_DIST_DECREASED: 5
+        event.BOMB_DROPPED: -5,
+        event.BOMB_EXPLODED: 0,
+
+        event.CRATE_DESTROYED: 20,
+        event.COIN_FOUND: 50,
+        event.COIN_COLLECTED: 100,
+
+        event.KILLED_OPPONENT: 0,
+        event.KILLED_SELF: -300,
+
+        event.GOT_KILLED: -200,
+        event.OPPONENT_ELIMINATED: 200,
+        event.SURVIVED_ROUND: 50,
+
+        # Custom events
+
+        # Collect coins
+        COIN_DIST_DECREASED: 5,
+        
+		BOMB_DIST_INCREASED: 10,
+        
+        # Blow up Crates
+        # STAYED_WITHIN_EXPLOSION_RADIUS: 0,
+        # MOVED_IN_SAFE_DIRECTION: 10,
+        # GOT_OUT_OF_EXPLOSION_RADIUS: 0,
+        # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
+        # SURVIVED_EXPLOSION: 50,
+        # WALKED_INTO_EXPLOSION: -50,
+        
+        # General Movement
+        # VISITED_SAME_PLACE: -20
     }
     
     total_reward = 0
@@ -161,11 +171,7 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
     self.logger.info(f"Gained {total_reward} total reward for events {', '.join(event_sequence)}")
     return total_reward
 
-def is_coin_dist_decreased(old_state, new_state):
-    """
-    Checks whether the agent moved towards a coin.
-    """
-    old_min_d = find_min_distance(old_state["coins"], *old_state["self"][3])
-    new_min_d = find_min_distance(new_state["coins"], *new_state["self"][3])
 
-    return new_min_d < old_min_d
+    
+
+
