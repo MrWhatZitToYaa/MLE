@@ -71,11 +71,13 @@ class QLearning:
 
 		# Approximation for reward of rest of the game, this is definetly not right this way
         rest = 0
-        rest *= pow(self.discount_factor, self.number_of_previous_states) 
 
-        #best_next_action = self.get_action_for_state(next_state)
-        #best_next_actionNum = self.action_to_actionNum(best_next_action)
-        #qValue_best_next_action = self.get_qValues_for_state(next_state)[best_next_actionNum]
+        last_state = transitions[-1][2]
+        best_next_action = self.get_action_for_state(last_state)
+        best_next_actionNum = self.action_to_actionNum(best_next_action)
+        qValue_best_next_action = self.get_qValues_for_state(last_state)[best_next_actionNum]
+
+        rest = qValue_best_next_action * pow(self.discount_factor, self.number_of_previous_states) 
         
         new_q_value = (1 - self.learning_rate) * previous_q_value + self.learning_rate * (sum_of_discounted_rewards + rest)
         
