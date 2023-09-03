@@ -6,7 +6,7 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 from .definitions import *
-from .callbacks import state_to_features
+from .callbacks import state_to_features, act_rule
 from .state_to_feature_helpers import *
 from .customEventAppender import appendCustomEvents
 
@@ -163,7 +163,7 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
     return total_reward
 
 
-def train_step(self, old_state, action, new_state, reward):
+def train_step_old(self, old_state, action, new_state, reward):
     if action is not None:
         action_mask = torch.zeros(len(ACTIONS), dtype=torch.int64)
         #print('action', action)
@@ -176,6 +176,29 @@ def train_step(self, old_state, action, new_state, reward):
         next_state_action_value = self.model.forward(state_to_features(new_state)).max().unsqueeze(0)
         expected_state_action_value = (next_state_action_value * LEARNING_RATE) + reward
 
+        loss = self.model.criterion(state_action_value, expected_state_action_value)
+
+        self.model.optimizer.zero_grad()
+        loss.backward()
+        self.model.optimizer.step()
+
+def train_step(self, old_state, action, new_state, reward):
+    if action is not None and act_rule(old_state) is not None:
+        #state_action_value = self.model.forward(state_to_features(old_state))#.unsqueeze(0)
+        #print(act_rule(old_state))
+        action_mask = torch.zeros(len(ACTIONS), dtype=torch.int64)
+        # print('action', action)
+        highest_prob_action = np.argmax(action.detach().numpy())
+        action_mask[highest_prob_action] = 1
+        # print('action_mask', action_mask)
+        forward_old = self.model.forward(state_to_features(old_state))
+        # print('forward old', forward_old)
+        state_action_value = torch.masked_select(forward_old, action_mask.bool())
+        #next_state_action_value = self.model.forward(state_to_features(new_state)).max().unsqueeze(0)
+        expected_state_action_value = torch.tensor((ACTIONS.index(act_rule(old_state)) * LEARNING_RATE) + reward).unsqueeze(0)
+
+        #print(f"target: {expected_state_action_value}")
+        #print(f"state_action_value: {state_action_value}")
         loss = self.model.criterion(state_action_value, expected_state_action_value)
 
         self.model.optimizer.zero_grad()
