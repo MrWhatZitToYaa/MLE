@@ -5,13 +5,10 @@ NUM_OF_ACTIONS = len(ACTIONS)
 PROBABILITIES_FOR_ACTIONS = [1/6, 1/6, 1/6, 1/6, 1/6, 1/6]
 #PROBABILITIES_FOR_ACTIONS = [0.15, 0.15, 0.15, 0.15, 0.15, 0.25]
 
-# arena is 16 x 16 and each pixel can be occupied by 9 possible blocks
+# arena is 15 x 15 and each pixel can be occupied by 14 possible blocks
 ARENA_LENGTH = 17
 ARENA_WIDTH = 17
 ARENA_SIZE = ARENA_LENGTH * ARENA_WIDTH
-NUMBER_OF_BLOCKS = 11
-
-NUM_OF_STATES = ARENA_SIZE * NUMBER_OF_BLOCKS
 
 class list_of_blocks(Enum):
     EMPTY =         0

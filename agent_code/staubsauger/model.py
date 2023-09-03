@@ -12,8 +12,6 @@ class QLearning:
         self.num_actions = num_actions
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
-        self.last_n_states = []
-        self.n = 5
         
         # Variables for the decay of the exploration probability
         self.exploration_prob = startin_exploration_probability
@@ -95,11 +93,8 @@ class QLearning:
                 self.last_decayed_in_round = round_number
                 self.exploration_prob *= EPSILON_DECAY
 
-    def train(self, state, action, reward, next_state, round_number):
-        self.last_n_states.append(next_state)
-        if len(self.last_n_states) == self.n:
-            self.update_q_table(state, action, reward, self.last_n_states.pop(0))            
-        self.total_reward += reward
+    def train(self, transitions, round_number):
+        self.update_q_table(transitions)
         
 		#decay exploration probability
         self.decay_exploration_prob(round_number)

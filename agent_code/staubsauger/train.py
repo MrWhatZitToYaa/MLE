@@ -23,7 +23,6 @@ def setup_training(self):
     # (s, a, r, s')
     self.transitions = deque(maxlen=NUMBER_OF_RELEVANT_STATES)
     self.number_of_previous_states = NUMBER_OF_RELEVANT_STATES
-    self.fill_states_counter = NUMBER_OF_RELEVANT_STATES
     
     self.total_rewards = []
     self.total_qTable_size = []
@@ -60,13 +59,19 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
     self.logger.debug(f'Encountered game event(s) {", ".join(map(repr, events))} in step {new_game_state["step"]}')
     appendCustomEvents(self, events, new_game_state, old_game_state)
 
-    # state_to_features is defined in callbacks.py
-    self.model.train(state_to_features(old_game_state),
-                     self_action,
-                     reward_from_events(self, events),
-                     state_to_features(new_game_state),
-                     old_game_state["round"])
-    self.transitions.append(Transition(state_to_features(old_game_state), self_action, state_to_features(new_game_state), reward_from_events(self, events)))
+	# Safe the last n states in a dequeue
+    reward = reward_from_events(self, events)
+    self.transitions.append(Transition(state_to_features(old_game_state),
+                                       self_action,
+                                       state_to_features(new_game_state),
+                                       reward))
+
+	# Only train if dequeue has n elemenets
+    if len(self.transitions) == self.number_of_previous_states:
+        self.model.train(self.transitions, old_game_state["round"])
+    
+	# Calculate the total reward for this round
+    self.total_reward += reward
 
 	# Save last player position
     new_position = get_player_coordinates(new_game_state["self"])
