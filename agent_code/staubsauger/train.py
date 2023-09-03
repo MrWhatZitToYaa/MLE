@@ -25,6 +25,7 @@ def setup_training(self):
     # Example: Setup an array that will note transition tuples
     # (s, a, r, s')
     self.transitions = deque(maxlen=TRANSITION_HISTORY_SIZE)
+    
     self.total_rewards = []
     self.total_qTable_size = []
     self.exploration_Probabilities = []
@@ -34,7 +35,8 @@ def setup_training(self):
                        self.model.exploration_prob,
                        self.model.decay_active,
                        self.model.epsilon_decay,
-                       self.model.epsilon_decay_after_rounds]
+                       self.model.epsilon_decay_after_rounds,
+                       self.model.number_of_previous_states]
 
     # Store Hyperparameters
     with open("./monitor_training/hyperparameters.pkl", "wb") as file:

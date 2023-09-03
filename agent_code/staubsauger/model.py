@@ -25,7 +25,9 @@ class QLearning:
         self.total_reward = 0
         
 		# Q-table related
-        self.number_of_previous_states
+        self.number_of_previous_states = number_of_relevant_states
+        self.fill_states_counter = number_of_relevant_states
+        self.previous_states = collections.deque([])
         self.q_table = {}
         
     def action_to_actionNum(self, action):
