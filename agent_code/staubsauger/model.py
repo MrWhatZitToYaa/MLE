@@ -46,18 +46,38 @@ class QLearning:
             
         return next_action
     
-    def update_q_table(self, state, action, reward, next_state):
+    def update_q_table(self, transitions):
         """
         Iterative approach to update the q-table
+        Using SARSA n-step method
+        :param transitions: Dequeue of transitions, each entry contains a named tuple of the form (s, a, r, s')
+							The oldest tuple is stored in the beginning of the dequeue
         """
-        best_next_action = self.get_action_for_state(next_state)
-        best_next_actionNum = self.action_to_actionNum(best_next_action)
-        qValue_best_next_action = self.get_qValues_for_state(next_state)[best_next_actionNum]
         
+		# Keep in mind that we don't update the q value for the last action but for the avtion that was taken
+		# NUMBER_OF_RELEVANT_STATES bofore the current one
+
+		# Calculate previous q value
+        state = transitions[0][0]
+        action = transitions[0][1]
+
         actionNum = self.action_to_actionNum(action)
+        previous_q_value = self.get_qValues_for_state(state)[actionNum]
+
+		# Calculate sum of discounted rewards for next NUMBER_OF_RELEVANT_STATES actions
+        sum_of_discounted_rewards = 0
+        for i in range(self.number_of_previous_states - 1):
+            sum_of_discounted_rewards += pow(self.discount_factor, i) * transitions[i + 1][3]
+
+		# Approximation for reward of rest of the game, this is definetly not right this way
+        rest = 0
+        rest *= pow(self.discount_factor, self.number_of_previous_states) 
+
+        #best_next_action = self.get_action_for_state(next_state)
+        #best_next_actionNum = self.action_to_actionNum(best_next_action)
+        #qValue_best_next_action = self.get_qValues_for_state(next_state)[best_next_actionNum]
         
-        old_q_value = self.get_qValues_for_state(state)[actionNum]
-        new_q_value = (1 - self.learning_rate) * old_q_value + self.learning_rate * (reward + self.discount_factor * qValue_best_next_action)
+        new_q_value = (1 - self.learning_rate) * previous_q_value + self.learning_rate * (sum_of_discounted_rewards + rest)
         
         if state not in self.q_table:
             self.q_table[state] = [0.0] * self.num_actions
