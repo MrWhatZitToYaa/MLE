@@ -39,13 +39,21 @@ def setup_training(self):
     self.transitions = deque(maxlen=NUMBER_OF_RELEVANT_STATES)
     self.model.number_of_previous_states = NUMBER_OF_RELEVANT_STATES
     
+	# Load the plot data back into memory if continue-training is true
     self.model.total_rewards = []
     self.model.total_qTable_size = []
     self.model.exploration_Probabilities = []
     
+    if self.continue_training:
+        with open("./monitor_training/total_rewards.pkl", "rb") as file:
+            self.model.total_rewards = pickle.load(file)
+        with open("./monitor_training/qTableSize.pkl", "rb") as file:
+            self.model.total_qTable_size = pickle.load(file)
+        with open("./monitor_training/exploration_probability.pkl", "rb") as file:
+            self.model.exploration_Probabilities = pickle.load(file)
+    
     hyperparameters = [self.model.learning_rate,
                        self.model.discount_factor,
-                       self.model.exploration_prob,
                        self.model.decay_active,
                        self.model.epsilon_decay,
                        self.model.epsilon_decay_after_rounds,

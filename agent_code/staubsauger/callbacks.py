@@ -14,7 +14,7 @@ def setup(self):
     Copy pasted setup method
     :param self: This object is passed to all callbacks and you can set arbitrary values.
     """
-    if self.train or not os.path.isfile("my-saved-model.pt"):
+    if (self.train and not self.continue_training) or not os.path.isfile("my-saved-model.pt"):
         self.logger.info("Setting up model from scratch.")
         weights = np.random.rand(len(ACTIONS))
         self.model = QLearning(NUM_OF_ACTIONS)

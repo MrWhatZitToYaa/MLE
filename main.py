@@ -122,6 +122,9 @@ def main(argv = None):
     play_parser.add_argument("--continue-without-training", default=False, action="store_true")
     # play_parser.add_argument("--single-process", default=False, action="store_true")
 
+    play_parser.add_argument("--continue-training", type=int, default=0, choices=[0, 1, 2, 3, 4],
+                             help="Loads model from file and continues training it for first … agents ; 0 for none")
+
     play_parser.add_argument("--scenario", default="classic", choices=s.SCENARIOS)
 
     play_parser.add_argument("--seed", type=int, help="Reset the world's random number generator to a known number for reproducibility")
@@ -175,7 +178,10 @@ def main(argv = None):
             agents.append((args.my_agent, len(agents) < args.train))
             args.agents = ["rule_based_agent"] * (s.MAX_AGENTS - 1)
         for agent_num, agent_name in enumerate(args.agents):
-            agents.append((agent_name, len(agents) < args.train, args.evaluate_performance == agent_num+1))
+            agents.append((agent_name,
+                           len(agents) < args.train,
+                           args.evaluate_performance == agent_num+1,
+                           len(agents) < args.continue_training))
 
         world = BombeRLeWorld(args, agents)
         every_step = not args.skip_frames

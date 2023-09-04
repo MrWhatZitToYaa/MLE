@@ -53,7 +53,16 @@ class Agent:
     calling events on its AgentBackend.
     """
 
-    def __init__(self, agent_name, code_name, display_name, train: bool, evaluate_performance: bool, backend: "AgentBackend", avatar_sprite_desc, bomb_sprite_desc):
+    def __init__(self,
+                 agent_name,
+                 code_name,
+                 display_name,
+                 train: bool,
+                 evaluate_performance: bool,
+                 continue_training: bool,
+                 backend: "AgentBackend",
+                 avatar_sprite_desc,
+                 bomb_sprite_desc):
         self.backend = backend
 
         # Load custom avatar or standard robot avatar of assigned color
@@ -83,6 +92,7 @@ class Agent:
         self.display_name = display_name
         self.train = train
         self.evaluate_performance = evaluate_performance
+        self.continue_training = continue_training
 
         self.total_score = 0
 
@@ -197,7 +207,7 @@ class AgentRunner:
     Agent callback runner (called by backend).
     """
 
-    def __init__(self, train, evaluate_performance, agent_name, code_name, result_queue):
+    def __init__(self, train, evaluate_performance, continue_training, agent_name, code_name, result_queue):
         self.agent_name = agent_name
         self.code_name = code_name
         self.result_queue = result_queue
@@ -220,6 +230,7 @@ class AgentRunner:
         self.fake_self = SimpleNamespace()
         self.fake_self.train = train
         self.fake_self.evaluate_performance = evaluate_performance
+        self.fake_self.continue_training = continue_training
 
         self.wlogger = logging.getLogger(self.agent_name + '_wrapper')
         self.wlogger.setLevel(s.LOG_AGENT_WRAPPER)
@@ -262,9 +273,10 @@ class AgentBackend:
     Base class connecting the agent to a callback implementation.
     """
 
-    def __init__(self, train, evaluate_performance, agent_name, code_name, result_queue):
+    def __init__(self, train, evaluate_performance, continue_training, agent_name, code_name, result_queue):
         self.train = train
         self.evaluate_performance = evaluate_performance
+        self.continue_training = continue_training
         self.code_name = code_name
         self.agent_name = agent_name
 
@@ -296,12 +308,17 @@ class SequentialAgentBackend(AgentBackend):
     AgentConnector realised in main thread (easy debugging).
     """
 
-    def __init__(self, train, evaluate_performance, agent_name, code_name):
-        super().__init__(train, evaluate_performance, agent_name, code_name, queue.Queue())
+    def __init__(self, train, evaluate_performance, continue_training, agent_name, code_name):
+        super().__init__(train, evaluate_performance, continue_training, agent_name, code_name, queue.Queue())
         self.runner = None
 
     def start(self):
-        self.runner = AgentRunner(self.train, self.evaluate_performance, self.agent_name, self.code_name, self.result_queue)
+        self.runner = AgentRunner(self.train,
+                                  self.evaluate_performance,
+                                  self.continue_training,
+                                  self.agent_name,
+                                  self.code_name,
+                                  self.result_queue)
 
     def send_event(self, event_name, *event_args):
         prev_cwd = os.getcwd()
