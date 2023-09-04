@@ -45,16 +45,18 @@ class QLearning:
     		#next_action = np.random.choice(ACTIONS, self.get_qValues_for_state(state).numpy())
             
         return next_action
-    
-    def update_q_table(self, transitions):
+        
+    def update_q_table_constrained(self, transitions, number_of_states_in_future):
         """
         Iterative approach to update the q-table
         Using SARSA n-step method
         :param transitions: Dequeue of transitions, each entry contains a named tuple of the form (s, a, r, s')
 							The oldest tuple is stored in the beginning of the dequeue
+        :param number_of_states_in_future: Number of states into the future that are used to update current q
+										   value
         """
         
-		# Keep in mind that we don't update the q value for the last action but for the avtion that was taken
+		# Keep in mind that we don't update the q value for the last action but for the action that was taken
 		# NUMBER_OF_RELEVANT_STATES bofore the current one
 
 		# Calculate previous q value
@@ -66,7 +68,7 @@ class QLearning:
 
 		# Calculate sum of discounted rewards for next NUMBER_OF_RELEVANT_STATES actions
         sum_of_discounted_rewards = 0
-        for i in range(self.number_of_previous_states - 1):
+        for i in range(number_of_states_in_future - 1):
             sum_of_discounted_rewards += pow(self.discount_factor, i) * transitions[i + 1][3]
 
 		# Approximation for reward of rest of the game, this is definetly not right this way
@@ -77,7 +79,7 @@ class QLearning:
         best_next_actionNum = self.action_to_actionNum(best_next_action)
         qValue_best_next_action = self.get_qValues_for_state(last_state)[best_next_actionNum]
 
-        rest = qValue_best_next_action * pow(self.discount_factor, self.number_of_previous_states) 
+        rest = qValue_best_next_action * pow(self.discount_factor, number_of_states_in_future) 
         
         new_q_value = (1 - self.learning_rate) * previous_q_value + self.learning_rate * (sum_of_discounted_rewards + rest)
         
@@ -103,11 +105,11 @@ class QLearning:
                 self.exploration_prob *= EPSILON_DECAY
 
     def train(self, transitions, round_number):
-        self.update_q_table(transitions)
+        self.update_q_table_constrained(transitions, len(transitions))
         
 		#decay exploration probability
-        self.decay_exploration_prob(round_number)
-        
+        self.decay_exploration_prob(round_number)         
+
     def update_last_positions(self, position: tuple):
         self.lastPositions[0] = self.lastPositions[1]
         self.lastPositions[1] = position

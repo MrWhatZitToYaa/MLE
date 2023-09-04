@@ -20,35 +20,36 @@ def setup_training(self):
     :param self: This object is passed to all callbacks and you can set arbitrary values.
     """
 	# Training parameters
-    self.learning_rate = LEARNING_RATE
-    self.discount_factor = DISCOUNT_FACTOR
+    self.model.learning_rate = LEARNING_RATE
+    self.model.discount_factor = DISCOUNT_FACTOR
     
 	# Variables for the decay of the exploration probability
-    self.exploration_prob = STARTING_EXPLORATION_PROBABILITY
-    self.decay_active = EXPLORATION_DECAY_ACTIVE
-    self.epsilon_decay = EPSILON_DECAY
-    self.epsilon_decay_after_rounds = DECAY_AFTER_ROUNDS
-    self.last_decayed_in_round = 0
-    self.last_round = 0
+    self.model.exploration_prob = STARTING_EXPLORATION_PROBABILITY
+    self.model.decay_active = EXPLORATION_DECAY_ACTIVE
+    self.model.epsilon_decay = EPSILON_DECAY
+    self.model.epsilon_decay_after_rounds = DECAY_AFTER_ROUNDS
+    self.model.last_decayed_in_round = 0
+    self.model.last_round = 0
     
 	# For plotting
-    self.total_reward = 0
+    self.model.total_reward = 0
 
     # Example: Setup an array that will note transition tuples
     # (s, a, r, s')
     self.transitions = deque(maxlen=NUMBER_OF_RELEVANT_STATES)
-    self.number_of_previous_states = NUMBER_OF_RELEVANT_STATES
+    self.model.number_of_previous_states = NUMBER_OF_RELEVANT_STATES
     
-    self.total_rewards = []
-    self.total_qTable_size = []
-    self.exploration_Probabilities = []
+    self.model.total_rewards = []
+    self.model.total_qTable_size = []
+    self.model.exploration_Probabilities = []
     
     hyperparameters = [self.model.learning_rate,
                        self.model.discount_factor,
                        self.model.exploration_prob,
                        self.model.decay_active,
                        self.model.epsilon_decay,
-                       self.model.epsilon_decay_after_rounds]
+                       self.model.epsilon_decay_after_rounds,
+                       self.model.number_of_previous_states]
 
     # Store Hyperparameters
     with open("./monitor_training/hyperparameters.pkl", "wb") as file:
@@ -82,11 +83,11 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
                                        reward))
 
 	# Only train if dequeue has n elemenets
-    if len(self.transitions) == self.number_of_previous_states:
+    if len(self.transitions) == self.model.number_of_previous_states:
         self.model.train(self.transitions, old_game_state["round"])
     
 	# Calculate the total reward for this round
-    self.total_reward += reward
+    self.model.total_reward += reward
 
 	# Save last player position
     new_position = get_player_coordinates(new_game_state["self"])
@@ -112,10 +113,12 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     
     self.logger.debug(f'Encountered event(s) {", ".join(map(repr, events))} in final step')
     self.transitions.append(Transition(state_to_features(last_game_state), last_action, None, reward_from_events(self, events)))
-    
-	# Add qTable size
-    self.total_qTable_size.append(len(self.model.q_table))
 
+	# Train the remaining steps with reduced view into the future
+    for i in range(len(self.transitions), 1, -1):
+        self.model.train(self.transitions, -1)
+        self.transitions.popleft()
+        
     # Store the model
     with open("my-saved-model.pt", "wb") as file:
         pickle.dump(self.model, file)
@@ -123,20 +126,21 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
 	# Store rewards
 	# Add rewards of final steps, since there is no training
     self.model.total_reward += reward_from_events(self, events)
-    self.total_rewards.append(self.model.total_reward)
+    self.model.total_rewards.append(self.model.total_reward)
     with open("./monitor_training/total_rewards.pkl", "wb") as file:
-        pickle.dump(self.total_rewards, file)
+        pickle.dump(self.model.total_rewards, file)
     # Set total rewards to 0 for next round
     self.model.total_reward = 0
         
 	# Store qTable size
+    self.model.total_qTable_size.append(len(self.model.q_table))
     with open("./monitor_training/qTableSize.pkl", "wb") as file:
-        pickle.dump(self.total_qTable_size, file)
+        pickle.dump(self.model.total_qTable_size, file)
         
 	# Store exploration probability
-    self.exploration_Probabilities.append(self.model.exploration_prob)
+    self.model.exploration_Probabilities.append(self.model.exploration_prob)
     with open("./monitor_training/exploration_probability.pkl", "wb") as file:
-        pickle.dump(self.exploration_Probabilities, file)
+        pickle.dump(self.model.exploration_Probabilities, file)
 
 def reward_from_events(self, event_sequence: List[str]) -> int:
     """
@@ -148,9 +152,9 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         event.MOVED_UP: -5,
         event.MOVED_DOWN: -5,
         event.WAITED: -5,
-        event.INVALID_ACTION: -50,
+        event.INVALID_ACTION: -20,
 
-        event.BOMB_DROPPED: -5,
+        event.BOMB_DROPPED: -100,
         event.BOMB_EXPLODED: 0,
 
         event.CRATE_DESTROYED: 20,

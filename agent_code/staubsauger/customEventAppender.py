@@ -9,11 +9,11 @@ def appendCustomEvents(self, events, new_game_state, old_game_state):
             events.append(COIN_DIST_DECREASED)
             self.logger.debug(f'Custom event occurred: {COIN_DIST_DECREASED}')
             
+    """     
     if is_bomb_dist_increased(old_game_state, new_game_state):
             events.append(BOMB_DIST_INCREASED)
             self.logger.debug(f'Custom event occurred: {BOMB_DIST_INCREASED}')
             
-    """        
     if new_position in self.model.lastPositions:
           events.append(VISITED_SAME_PLACE)
           self.logger.debug(f'Custom event occurred: {VISITED_SAME_PLACE}')
