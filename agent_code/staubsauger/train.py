@@ -36,8 +36,8 @@ def setup_training(self):
 
     # Example: Setup an array that will note transition tuples
     # (s, a, r, s')
-    self.transitions = deque(maxlen=NUMBER_OF_RELEVANT_STATES)
-    self.model.number_of_previous_states = NUMBER_OF_RELEVANT_STATES
+    self.transitions = deque(maxlen=NUMBER_OF_RELEVANT_STATES + 1)
+    self.model.number_of_previous_states = NUMBER_OF_RELEVANT_STATES + 1
     
 	# Load the plot data back into memory if continue-training is true
     self.model.total_rewards = []

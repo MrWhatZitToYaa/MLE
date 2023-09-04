@@ -68,10 +68,10 @@ class QLearning:
 
 		# Calculate sum of discounted rewards for next NUMBER_OF_RELEVANT_STATES actions
         sum_of_discounted_rewards = 0
-        for i in range(number_of_states_in_future - 1):
+        for i in range(number_of_states_in_future - 2):
             sum_of_discounted_rewards += pow(self.discount_factor, i) * transitions[i + 1][3]
 
-		# Approximation for reward of rest of the game, this is definetly not right this way
+		# Approximation for reward of rest of the game
         rest = 0
 
         last_state = transitions[-1][2]
