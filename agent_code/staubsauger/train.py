@@ -25,11 +25,10 @@ def setup_training(self):
     
 	# Variables for the decay of the exploration probability
     self.model.exploration_prob = STARTING_EXPLORATION_PROBABILITY
-    self.model.decay_active = EXPLORATION_DECAY_ACTIVE
-    self.model.epsilon_decay = EPSILON_DECAY
-    self.model.epsilon_decay_after_rounds = DECAY_AFTER_ROUNDS
-    self.model.last_decayed_in_round = 0
-    self.model.last_round = 0
+    self.decay_active = EXPLORATION_DECAY_ACTIVE
+    self.epsilon_decay = EPSILON_DECAY
+    self.epsilon_decay_after_rounds = DECAY_AFTER_ROUNDS
+    self.last_decayed_in_round = 0
     
 	# For plotting
     self.model.total_reward = 0
@@ -54,10 +53,10 @@ def setup_training(self):
     
     hyperparameters = [self.model.learning_rate,
                        self.model.discount_factor,
-                       self.model.decay_active,
-                       self.model.epsilon_decay,
-                       self.model.epsilon_decay_after_rounds,
-                       self.model.number_of_previous_states]
+                       self.decay_active,
+                       self.epsilon_decay,
+                       self.epsilon_decay_after_rounds,
+                       self.model.number_of_previous_states - 1]
 
     # Store Hyperparameters
     with open("./monitor_training/hyperparameters.pkl", "wb") as file:
@@ -127,6 +126,9 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
         self.model.train(self.transitions, -1)
         self.transitions.popleft()
         
+	# Decay the exploration probability
+    decay_exploration_prob(self, last_game_state["round"]) 
+
     # Store the model
     with open("my-saved-model.pt", "wb") as file:
         pickle.dump(self.model, file)
@@ -203,7 +205,18 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
     self.logger.info(f"Gained {total_reward} total reward for events {', '.join(event_sequence)}")
     return total_reward
 
+def decay_exploration_prob(self, round_number):
+        """
+        Reduces the exploration probability for each training round gradually
+        """
+        
+        if(not self.decay_active):
+            return
 
+		# Only true every epsilon_decay_after_rounds rounds
+        if round_number == self.last_decayed_in_round + self.epsilon_decay_after_rounds:
+            self.last_decayed_in_round = round_number
+            self.model.exploration_prob *= self.epsilon_decay
     
 
 

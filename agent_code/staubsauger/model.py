@@ -87,28 +87,10 @@ class QLearning:
             self.q_table[state] = [0.0] * self.num_actions
 
         self.q_table[state][actionNum] = new_q_value
-
-    def decay_exploration_prob(self, round_number):
-        """
-        Reduces the exploration probability for each training round gradually
-        """
-        
-        if(not self.decay_active):
-            return
-
-		# Only true if round number changes
-        if round_number != self.last_round:
-            self.last_round = round_number
-            # Only true every epsilon_decay_after_rounds rounds
-            if round_number == self.last_decayed_in_round + self.epsilon_decay_after_rounds:
-                self.last_decayed_in_round = round_number
-                self.exploration_prob *= EPSILON_DECAY
+    
 
     def train(self, transitions, round_number):
-        self.update_q_table_constrained(transitions, len(transitions))
-        
-		#decay exploration probability
-        self.decay_exploration_prob(round_number)         
+        self.update_q_table_constrained(transitions, len(transitions))       
 
     def update_last_positions(self, position: tuple):
         self.lastPositions[0] = self.lastPositions[1]
