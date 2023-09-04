@@ -169,7 +169,7 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
 
         event.CRATE_DESTROYED: 20,
         event.COIN_FOUND: 50,
-        event.COIN_COLLECTED: 100,
+        event.COIN_COLLECTED: 20,
 
         event.KILLED_OPPONENT: 0,
         event.KILLED_SELF: -300,
