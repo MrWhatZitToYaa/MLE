@@ -31,13 +31,15 @@ def get_direction_to_closetes_safe_tile(player, safe_tiles):
     closest_safe_tileX, closest_safe_tileY = find_min_safe_tile_relative_coordinate(safe_tiles, player)
     return get_direction_for_object(closest_safe_tileX, closest_safe_tileY)
 
-def get_area_around_player(field, player):
+def get_area_around_player(field, explosions, player):
     field = field.flatten()
     # Transform arena
     transformed_field = [list_of_blocks.EMPTY.value if x == 0 else 
                         list_of_blocks.BRICK.value if x == -1 else
                         list_of_blocks.CRATE.value
                         for x in field]
+    
+    transformed_field = np.array(transformed_field).reshape(ARENA_LENGTH, ARENA_WIDTH)
     
     playerX, playerY = get_player_coordinates(player)
 
@@ -48,11 +50,22 @@ def get_area_around_player(field, player):
     #Copy area around player
     for i in range(0,area_around_player_size):
          for j in range(0,area_around_player_size):
-              area_around_player[i][j] = transformed_field[(i-1+playerY)*ARENA_LENGTH + j-1 + playerX]
+              area_around_player[i][j] = transformed_field[i-1 + playerX][j-1 + playerY]
          
 	# Add player to area
     area_around_player[1][1] = list_of_blocks.PLAYER.value
     
+	# Add explosions to area
+    sizeX, sizeY = explosions.shape
+    for x in range(sizeX):
+        for y in range(sizeY):
+            if(explosions[x][y] != 0):
+                if(abs(playerX - x) + abs(playerY - y) <= 1):
+                    explosion_rel_X = x - playerX
+                    explosion_rel_Y = y - playerY
+                    area_around_player[explosion_rel_X+1][explosion_rel_Y+1] = list_of_blocks.EXPLOSION0.value
+                    
+
 	# Add area_around_player to feature_vector
     return tuple(area_around_player.flatten())
 
@@ -286,12 +299,13 @@ def cord_is_valid(x,y):
 def check_for_neaby_explosion(player, explosions):
     playerX, playerY = get_player_coordinates(player)
     
-    explosion_nearby = 0
+    explosion_nearby = (0,)
     
     sizeX, sizeY = explosions.shape
     for i in range(sizeX):
         for j in range(sizeY):
-            if(abs(playerX - i) + abs(playerY - j) <= 1):
-                explosion_nearby = 1
+            if(explosions[i][j] != 0):
+                if(abs(playerX - i) + abs(playerY - j) <= 1):
+                    explosion_nearby = (1,)
                 
     return explosion_nearby
