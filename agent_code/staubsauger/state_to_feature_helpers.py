@@ -60,7 +60,7 @@ def find_min_coin_relative_coordinate(coins: list, player):
     min_y = ARENA_LENGTH
     min_d = ARENA_WIDTH + ARENA_LENGTH
     for (coinX, coinY) in coins:
-        d = np.linalg.norm(np.array((playerX, playerY)) - np.array((coinX, coinY)))
+        d = abs(coinX - playerX) + abs(coinY - playerY)
         if d < min_d:
             min_d = d
             min_x = coinX - playerX
@@ -79,6 +79,26 @@ def find_min_coin_distance(coins: list, playerX, playerY):
         if d < min_d:
             min_d = d
     return min_d
+
+def get_direction_for_coin(coinX, coinY):
+    directionX = -2
+    directionY = -2
+    
+    if(coinX < 0):
+        directionX = 1
+    if(coinX == 0):
+        directionX = 0
+    if(coinX > 0):
+        directionX = -1
+        
+    if(coinY < 0):
+        directionY = 1
+    if(coinY == 0):
+        directionY = 0
+    if(coinY > 0):
+        directionY = -1
+        
+    return (directionX, directionY)
 
 def find_min_bomb_relative_coordinate(bomb: tuple, player):
     playerX, playerY = get_player_coordinates(player)
