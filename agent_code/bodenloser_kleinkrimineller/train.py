@@ -164,12 +164,12 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         event.WAITED: -5,
         event.INVALID_ACTION: -20,
 
-        event.BOMB_DROPPED: 20,
+        event.BOMB_DROPPED: -100,
         event.BOMB_EXPLODED: 0,
 
         event.CRATE_DESTROYED: 20,
         event.COIN_FOUND: 50,
-        event.COIN_COLLECTED: 100,
+        event.COIN_COLLECTED: 20,
 
         event.KILLED_OPPONENT: 0,
         event.KILLED_SELF: -300,

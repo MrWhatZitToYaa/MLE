@@ -91,7 +91,7 @@ def state_to_features_V15(game_state: dict) -> int:
     
 	# Add direction to nearest coin to feature_vector
     min_dist_coin_X, min_dist_coin_Y = find_min_coin_relative_coordinate(coins, player)
-    feature_vector += get_direction_for_coin(min_dist_coin_X, min_dist_coin_Y)
+    feature_vector += get_direction_for_object(min_dist_coin_X, min_dist_coin_Y)
     
 	# Return hash value of feature_vector
     key = hash(feature_vector)
@@ -119,12 +119,19 @@ def state_to_features_V16(game_state: dict) -> int:
     
 	# Add direction to nearest coin to feature_vector
     min_dist_coin_X, min_dist_coin_Y = find_min_coin_relative_coordinate(coins, player)
-    feature_vector += get_direction_for_coin(min_dist_coin_X, min_dist_coin_Y)
+    feature_vector += get_direction_for_object(min_dist_coin_X, min_dist_coin_Y)
     
 	# Add direction to run away from bomb
-    player_coords = get_player_coordinates(player)    
-    for bomb in bombs:
-        radius = get_blast_coords(bomb[0], field)
+    direction_to_closest_safe_tile_X, direction_to_closest_safe_tile_Y = -2, -2
+    if(within_explosion_radius(player, field, bombs)):
+         reachable_tiles = get_reachable_tiles(get_player_coordinates(player), field, 3)
+         safe_tiles = get_safe_tiles(reachable_tiles, bombs, field)
+         if(len(safe_tiles) == 0):
+              direction_to_closest_safe_tile_X, direction_to_closest_safe_tile_Y = -3, -3
+         else:
+              direction_to_closest_safe_tile_X, direction_to_closest_safe_tile_Y = get_direction_to_closetes_safe_tile(player, safe_tiles)
+         
+    feature_vector += (direction_to_closest_safe_tile_X, direction_to_closest_safe_tile_Y)
 
 	# Return hash value of feature_vector
     key = hash(feature_vector)
