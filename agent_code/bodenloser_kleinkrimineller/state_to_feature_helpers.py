@@ -282,3 +282,16 @@ def cord_is_valid(x,y):
         return False
     else:
         return True
+    
+def check_for_neaby_explosion(player, explosions):
+    playerX, playerY = get_player_coordinates(player)
+    
+    explosion_nearby = 0
+    
+    sizeX, sizeY = explosions.shape
+    for i in range(sizeX):
+        for j in range(sizeY):
+            if(abs(playerX - i) + abs(playerY - j) <= 1):
+                explosion_nearby = 1
+                
+    return explosion_nearby

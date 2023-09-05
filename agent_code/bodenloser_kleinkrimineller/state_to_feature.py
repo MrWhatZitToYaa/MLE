@@ -108,6 +108,7 @@ def state_to_features_V16(game_state: dict) -> int:
     
     field = game_state["field"]
     bombs = game_state["bombs"]
+    explosions = game_state["explosions"]
     coins = game_state["coins"]
     player = game_state["self"]
     
@@ -132,6 +133,10 @@ def state_to_features_V16(game_state: dict) -> int:
               direction_to_closest_safe_tile_X, direction_to_closest_safe_tile_Y = get_direction_to_closetes_safe_tile(player, safe_tiles)
          
     feature_vector += (direction_to_closest_safe_tile_X, direction_to_closest_safe_tile_Y)
+
+	# Add information if agent is close to explosion
+    feature_vector += check_for_neaby_explosion(player, explosions)
+    
 
 	# Return hash value of feature_vector
     key = hash(feature_vector)
