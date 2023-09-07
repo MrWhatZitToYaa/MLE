@@ -181,7 +181,7 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         # Custom events
 
         # Collect coins
-        COIN_DIST_DECREASED: 5,
+        COIN_DIST_DECREASED: 10,
         
 		BOMB_DIST_INCREASED: 10,
         

@@ -137,4 +137,4 @@ def state_to_features_V16(game_state: dict) -> int:
 
 	# Return hash value of feature_vector
     key = hash(feature_vector)
-    return key
+    return feature_vector

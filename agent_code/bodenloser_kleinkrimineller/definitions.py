@@ -32,7 +32,7 @@ class list_of_blocks(Enum):
 LEARNING_RATE = 0.1
 DISCOUNT_FACTOR = 0.5
 # Has to be at least one
-NUMBER_OF_RELEVANT_STATES = 10
+NUMBER_OF_RELEVANT_STATES = 1
 
 # Exploration probablility
 EXPLORATION_DECAY_ACTIVE = True

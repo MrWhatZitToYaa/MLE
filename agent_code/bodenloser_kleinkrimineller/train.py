@@ -181,14 +181,14 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         # Custom events
 
         # Collect coins
-        COIN_DIST_DECREASED: 5,
+        #COIN_DIST_DECREASED: 5,
         
-		BOMB_DIST_INCREASED: 10,
+		#BOMB_DIST_INCREASED: 10,
         
         # Blow up Crates
         # STAYED_WITHIN_EXPLOSION_RADIUS: 0,
-        # MOVED_IN_SAFE_DIRECTION: 10,
-        # GOT_OUT_OF_EXPLOSION_RADIUS: 0,
+         MOVED_IN_SAFE_DIRECTION: 10,
+         GOT_OUT_OF_EXPLOSION_RADIUS: 20,
         # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
         # SURVIVED_EXPLOSION: 50,
         # WALKED_INTO_EXPLOSION: -50,

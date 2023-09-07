@@ -17,10 +17,10 @@ def appendCustomEvents(self, events, new_game_state, old_game_state):
     if new_position in self.model.lastPositions:
           events.append(VISITED_SAME_PLACE)
           self.logger.debug(f'Custom event occurred: {VISITED_SAME_PLACE}')
-
     if stayed_within_explosion_radius(old_game_state, new_game_state):
         events.append(STAYED_WITHIN_EXPLOSION_RADIUS)
         self.logger.debug(f'Custom event occurred: {STAYED_WITHIN_EXPLOSION_RADIUS}')
+	"""
 
     if took_step_safe_direction(old_game_state, new_game_state):
         events.append(MOVED_IN_SAFE_DIRECTION)
@@ -29,7 +29,8 @@ def appendCustomEvents(self, events, new_game_state, old_game_state):
     if got_out_of_explosion_radius(old_game_state, new_game_state):
         events.append(GOT_OUT_OF_EXPLOSION_RADIUS)
         self.logger.debug(f'Custom event occurred: {GOT_OUT_OF_EXPLOSION_RADIUS}')
-
+        
+    """
     if event.BOMB_DROPPED in events and not reachable_safe_tile_exists(new_game_state["self"][3], new_game_state["field"], new_game_state["bombs"]):        
         events.append(DROPPED_BOMB_WITH_NO_WAY_OUT)
         self.logger.debug(f'Custom event occurred: {DROPPED_BOMB_WITH_NO_WAY_OUT}')
@@ -87,46 +88,10 @@ def stayed_within_explosion_radius(old_state, new_state):
         else: return False
 
 def got_out_of_explosion_radius(old_state, new_state):
-    if not within_explosion_radius(old_state["self"][0][0], old_state["self"][0][1], old_state["field"], old_state["bombs"]): return False
+    if not within_explosion_radius(old_state["self"], old_state["field"], old_state["bombs"]): return False
     else:
-        if within_explosion_radius(new_state["self"][0][0], new_state["self"][0][1], new_state["field"], new_state["bombs"]): return False
+        if within_explosion_radius(new_state["self"], new_state["field"], new_state["bombs"]): return False
         else: return True
-
-""" def reachable_safe_tile_exists(player_coords, field):
-    x, y = player_coords[0], player_coords[1]
-
-    print(x, y, field)
-    for i in range(1, ARENA_WIDTH):
-        if y+i >= ARENA_WIDTH: break
-        if field[x+1][y+i] == 0:
-            return True
-        if field[x-1][y+i] == 0:
-            return True
-            
-    for i in range(1, ARENA_WIDTH):
-        if y-i >= ARENA_WIDTH: break
-        if field[x+1][y-i] == 0:
-            return True
-        if field[x-1][y-i] == 0:
-            return True
-    
-    for i in range(1, ARENA_LENGTH):
-        if x+i >= ARENA_LENGTH: break
-        if field[x+i][y+1] == 0:
-            return True
-        if field[x+i][y-1] == 0:
-            return True
-    
-    for i in range(1, ARENA_LENGTH):
-        if x-i >= ARENA_LENGTH: break
-        if field[x-i][y+1] == 0:
-            return True
-        if field[x-i][y-1] == 0:
-            return True
-    
-    return False """
-
-
 
 def reachable_safe_tile_exists(player_coords, field, bombs):
     dangerous_bomb = find_closest_dangerous_bomb(bombs, field, player_coords)

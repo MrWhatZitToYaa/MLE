@@ -9,7 +9,7 @@ def state_to_features(game_state: dict) -> int:
      :param game_state:  A dictionary describing the current game board.
      :return: int
      """
-     return state_to_features_V16(game_state)
+     return state_to_features_V15(game_state)
 
 def state_to_features_V8(game_state: dict) -> int:
     """
@@ -92,39 +92,6 @@ def state_to_features_V15(game_state: dict) -> int:
 	# Add direction to nearest coin to feature_vector
     min_dist_coin_X, min_dist_coin_Y = find_min_coin_relative_coordinate(coins, player)
     feature_vector += get_direction_for_coin(min_dist_coin_X, min_dist_coin_Y)
-    
-	# Return hash value of feature_vector
-    key = hash(feature_vector)
-    return key
-
-def state_to_features_V16(game_state: dict) -> int:
-    """
-    Converts the game state into a number
-    Only player location, walls arround him and nearest coin
-    Note: Same as V7, but use rel distance instead of direction
-    :param game_state:  A dictionary describing the current game board.
-    :return: int
-    """
-    
-    field = game_state["field"]
-    bombs = game_state["bombs"]
-    coins = game_state["coins"]
-    player = game_state["self"]
-    
-	# Stores all the relevant information that is passed on to the agent
-    feature_vector = ()
-    
-	# Add area_around_player to feature_vector
-    feature_vector = get_area_around_player(field, player)
-    
-	# Add direction to nearest coin to feature_vector
-    min_dist_coin_X, min_dist_coin_Y = find_min_coin_relative_coordinate(coins, player)
-    feature_vector += get_direction_for_coin(min_dist_coin_X, min_dist_coin_Y)
-    
-	# Add direction to run away from bomb
-    player_coords = get_player_coordinates(player)    
-    for bomb in bombs:
-        radius = get_blast_coords(bomb[0], field)
 
 	# Return hash value of feature_vector
     key = hash(feature_vector)
