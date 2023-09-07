@@ -3,6 +3,7 @@ from enum import Enum
 ACTIONS = ['UP', 'RIGHT', 'DOWN', 'LEFT', 'WAIT', 'BOMB']
 NUM_OF_ACTIONS = len(ACTIONS)
 PROBABILITIES_FOR_ACTIONS = [1/6, 1/6, 1/6, 1/6, 1/6, 1/6]
+# = [1/5, 1/5, 1/5, 1/5, 1/5, 0] # peaceful setting
 #PROBABILITIES_FOR_ACTIONS = [0.15, 0.15, 0.15, 0.15, 0.15, 0.25]
 
 # arena is 16 x 16 and each pixel can be occupied by 9 possible blocks
@@ -32,7 +33,7 @@ class list_of_blocks(Enum):
     BOMB_TICK3 =    13
 
 # General model parameters
-LEARNING_RATE = 0.1
+LEARNING_RATE = 0.0001
 DISCOUNT_FACTOR = 0.5
 
 # Exploration probablility
