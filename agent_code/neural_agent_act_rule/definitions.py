@@ -32,7 +32,8 @@ class list_of_blocks(Enum):
     BOMB_TICK3 =    13
 
 # General model parameters
-LEARNING_RATE = 0.1
+LEARNING_RATE = 0.0001
+WEIGHT_DECAY = 2e-5
 DISCOUNT_FACTOR = 0.5
 
 # Exploration probablility

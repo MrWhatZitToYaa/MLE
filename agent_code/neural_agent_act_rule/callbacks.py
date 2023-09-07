@@ -16,7 +16,6 @@ def setup(self):
     self.count = 0
     if self.train or not os.path.isfile("my-saved-model.pt"):
         self.logger.info("Setting up model from scratch.")
-        weights = np.random.rand(len(ACTIONS))
         self.model = Model(INPUT_CHANNELS, NUM_OF_ACTIONS)
     else:
         self.logger.info("Loading model from saved state.")

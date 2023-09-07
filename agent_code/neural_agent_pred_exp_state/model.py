@@ -22,8 +22,8 @@ class Model(nn.Module):
         )
         weights = np.random.rand(len(ACTIONS))
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr = LEARNING_RATE)
-        self.criterion = nn.CrossEntropyLoss()
-        #self.criterion = nn.MSELoss()
+        #self.criterion = nn.CrossEntropyLoss()
+        self.criterion = nn.MSELoss()
 
     def forward(self, x):
         #print(x)

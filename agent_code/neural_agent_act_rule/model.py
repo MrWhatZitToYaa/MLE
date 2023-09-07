@@ -11,7 +11,6 @@ class Model(nn.Module):
     def __init__(self, input_channels, num_classes):
         super(Model, self).__init__()
         self.model = nn.Sequential()
-        #channels = [input_channels, 64, 32, num_classes]
         self.model = nn.Sequential(
             nn.Linear(input_channels, 64),
             nn.ReLU(),
@@ -21,7 +20,7 @@ class Model(nn.Module):
             #nn.Softmax(1)
         )
         weights = np.random.rand(len(ACTIONS))
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr = LEARNING_RATE)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
         self.criterion = nn.CrossEntropyLoss()
 
     def forward(self, x):

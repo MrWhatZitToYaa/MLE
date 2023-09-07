@@ -3,6 +3,7 @@ from typing import List
 from collections import namedtuple, deque
 import pickle
 import torch
+import os
 import torch.nn.functional as F
 import numpy as np
 from .definitions import *
@@ -59,7 +60,7 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
     self.logger.debug(f'Encountered game event(s) {", ".join(map(repr, events))} in step {new_game_state["step"]}')
     appendCustomEvents(self, events, new_game_state, old_game_state)
 
-    train_step(self, old_game_state, self_action, new_game_state, reward_from_events(self, events))
+    train_step(self, old_game_state, self_action)
 
 
 def end_of_round(self, last_game_state: dict, last_action: str, events: List[str]):
@@ -161,26 +162,11 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
     self.logger.info(f"Gained {total_reward} total reward for events {', '.join(event_sequence)}")
     return total_reward
 
-def train_step(self, old_state, action, new_state, reward):
+def train_step(self, old_state, action):
     if action is not None and act_rule(self, old_state) is not None:
-        '''
-        action_mask = torch.zeros(len(ACTIONS), dtype=torch.int64)
-        # print('action', action)
-        highest_prob_action = np.argmax(action.detach().numpy())
-        action_mask[highest_prob_action] = 1
-        # print('action_mask', action_mask)
-        forward_old = self.model.forward(state_to_features(old_state))
-        # print('forward old', forward_old)
-        state_action_value = torch.masked_select(forward_old, action_mask.bool())
-        expected_state_action_value = torch.tensor((ACTIONS.index(act_rule(self, old_state)) * LEARNING_RATE) + reward).unsqueeze(0)
-        #print(f"target: {expected_state_action_value}")
-        #print(f"state_action_value: {state_action_value}")
-        '''
+
         state_action_value = self.model.forward(state_to_features(old_state)).unsqueeze(0)
 
-        # next_state_action_value = self.forward(new_state).max().unsqueeze(0)
-        # expected_state_action_value = (next_state_action_value * self.gamma) + reward
-        # print(act_rule(old_state))
         expected_state_action_value = torch.tensor(ACTIONS.index(act_rule(self, old_state)), dtype=torch.long).unsqueeze(0)
         # print(f"target: {target}")
         # print(f"state_action_value: {state_action_value}")
