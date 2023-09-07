@@ -110,6 +110,29 @@ def find_min_coin_distance(coins: list, playerX, playerY):
             min_d = d
     return min_d
 
+def find_min_crate_relative_coordinate(field, player):
+    playerX, playerY = get_player_coordinates(player)
+    
+    min_x = ARENA_WIDTH
+    min_y = ARENA_LENGTH
+    min_d = ARENA_WIDTH + ARENA_LENGTH
+    
+	# Get all the crates from the field
+    crates = []
+    for x in range(ARENA_WIDTH):
+        for y in range(ARENA_LENGTH):
+            if field[x][y] == 1:
+                crates.append((x,y))
+
+    for (objX, objY) in crates:
+        d = abs(objX - playerX) + abs(objY - playerY)
+        if d < min_d:
+            min_d = d
+            min_x = objX - playerX
+            min_y = objY - playerY
+            
+    return (min_x, min_y)
+
 def get_direction_for_object(objectX, objectY):
     directionX = -2
     directionY = -2

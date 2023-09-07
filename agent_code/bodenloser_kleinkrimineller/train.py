@@ -167,7 +167,7 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         event.BOMB_DROPPED: -5,
         event.BOMB_EXPLODED: 0,
 
-        event.CRATE_DESTROYED: 50,
+        event.CRATE_DESTROYED: 100,
         event.COIN_FOUND: 20,
         event.COIN_COLLECTED: 100,
 
@@ -187,8 +187,8 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         
         # Blow up Crates
         # STAYED_WITHIN_EXPLOSION_RADIUS: 0,
-         MOVED_IN_SAFE_DIRECTION: 10,
-         GOT_OUT_OF_EXPLOSION_RADIUS: 20,
+         MOVED_IN_SAFE_DIRECTION: 20,
+        # GOT_OUT_OF_EXPLOSION_RADIUS: 20,
         # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
         # SURVIVED_EXPLOSION: 50,
         # WALKED_INTO_EXPLOSION: -50,

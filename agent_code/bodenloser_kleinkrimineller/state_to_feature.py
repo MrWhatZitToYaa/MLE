@@ -134,7 +134,10 @@ def state_to_features_V16(game_state: dict) -> int:
          
     feature_vector += (direction_to_closest_safe_tile_X, direction_to_closest_safe_tile_Y)
     
+	# Add direction to nearest crate
+    min_dist_crate_X, min_dist_crate_Y = find_min_crate_relative_coordinate(field, player)
+    feature_vector += get_direction_for_object(min_dist_crate_X, min_dist_crate_Y)
 
 	# Return hash value of feature_vector
     key = hash(feature_vector)
-    return feature_vector
+    return key
