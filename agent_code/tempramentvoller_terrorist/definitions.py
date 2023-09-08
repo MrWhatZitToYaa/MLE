@@ -2,8 +2,8 @@ from enum import Enum
 
 ACTIONS = ['UP', 'RIGHT', 'DOWN', 'LEFT', 'WAIT', 'BOMB']
 NUM_OF_ACTIONS = len(ACTIONS)
-#PROBABILITIES_FOR_ACTIONS = [0.2, 0.2, 0.2, 0.2, 0.2, 0]
-PROBABILITIES_FOR_ACTIONS = [1/6, 1/6, 1/6, 1/6, 1/6, 1/6]
+PROBABILITIES_FOR_ACTIONS = [0.2, 0.2, 0.2, 0.2, 0.2, 0]
+#PROBABILITIES_FOR_ACTIONS = [1/6, 1/6, 1/6, 1/6, 1/6, 1/6]
 #PROBABILITIES_FOR_ACTIONS = [0.15, 0.15, 0.15, 0.15, 0.15, 0.25]
 
 # arena is 15 x 15 and each pixel can be occupied by 14 possible blocks
@@ -16,6 +16,7 @@ class list_of_steps(Enum):
     DOWN =       1
     LEFT =       2
     RIGHT =      3
+    NODIR = 	 4
 
 class list_of_blocks(Enum):
     EMPTY =         0
@@ -44,7 +45,7 @@ NUMBER_OF_RELEVANT_STATES = 1
 EXPLORATION_DECAY_ACTIVE = True
 EPSILON_DECAY = 0.99
 DECAY_AFTER_ROUNDS = 10
-STARTING_EXPLORATION_PROBABILITY = 1.0
+STARTING_EXPLORATION_PROBABILITY = 0.63
 
 # Custom Events
 COIN_DIST_DECREASED = 'COIN_DIST_DECREASED'

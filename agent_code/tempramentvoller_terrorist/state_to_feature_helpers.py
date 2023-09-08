@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.spatial.distance import cdist
+from collections import deque
 
 from .definitions import *
 
@@ -168,13 +169,24 @@ def get_directions_for_object(objectX, objectY):
   
     return (directionX, directionY)
 
+def get_direction_for_coin(coins, player, field):
+    coin_X, coin_Y = find_min_coin_coordinate(coins, player)
+    
+	# None found or on top
+    playerX, playerY = get_player_coordinates(player)
+    if(coin_X == ARENA_LENGTH and coin_Y == ARENA_WIDTH) or (coin_X == playerX and coin_Y == playerY):
+        return (list_of_steps.NODIR.value,)
+
+    direction = get_direction_for_object(coin_X, coin_Y, player, field)
+    return direction
+
 def get_direction_for_object(objX, objY, player, field):
     path = find_path(field, get_player_coordinates(player), (objX, objY))
     
     firstStepX, firstStepY = path[1]
     playerX, playerY = get_player_coordinates(player)
     
-    direction = -1
+    direction = (-1)
 	# Find the relative direction to the player
     if(firstStepX - playerX > 0):
         direction = list_of_steps.RIGHT.value
@@ -185,36 +197,38 @@ def get_direction_for_object(objX, objY, player, field):
     if(firstStepY - playerY < 0):
         direction = list_of_steps.UP.value
         
-    return direction
+    return (direction,)
 
 def find_path(field, start, end):
     def is_valid(x, y):
         return 0 <= x < ARENA_WIDTH and 0 <= y < ARENA_LENGTH and field[x][y] != -1 and not visited[x][y]
 
-    def dfs(x, y):
-        if x == end[0] and y == end[1]:
-            return True
+    visited = [[False for _ in range(17)] for _ in range(17)]
+    parent = [[None for _ in range(17)] for _ in range(17)]
 
-        visited[x][y] = True
+    queue = deque([start])
+    visited[start[0]][start[1]] = True
+
+    while queue:
+        x, y = queue.popleft()
+
+        if (x, y) == end:
+            path = []
+            while (x, y) != start:
+                path.append((x, y))
+                x, y = parent[x][y]
+            path.append(start)
+            path.reverse()
+            return path
 
         for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
             new_x, new_y = x + dx, y + dy
             if is_valid(new_x, new_y):
-                if dfs(new_x, new_y):
-                    path.append((new_x, new_y))
-                    return True
+                visited[new_x][new_y] = True
+                parent[new_x][new_y] = (x, y)
+                queue.append((new_x, new_y))
 
-        return False
-
-    visited = [[False for _ in range(17)] for _ in range(17)]
-    path = []
-    
-    if dfs(start[0], start[1]):
-        path.append(start)
-        path.reverse()
-        return path
-    else:
-        return None
+    return None
 
 def find_min_bomb_relative_coordinate(bomb: tuple, player):
     playerX, playerY = get_player_coordinates(player)
