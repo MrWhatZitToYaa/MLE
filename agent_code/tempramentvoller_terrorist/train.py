@@ -160,26 +160,26 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
     Returns total reward for a sequence of events
     """
     rewards = {
-        event.MOVED_LEFT: -5,
-        event.MOVED_RIGHT: -5,
-        event.MOVED_UP: -5,
-        event.MOVED_DOWN: -5,
-        event.WAITED: -5,
-        event.INVALID_ACTION: -20,
+        event.MOVED_LEFT: -20,
+        event.MOVED_RIGHT: -20,
+        event.MOVED_UP: -20,
+        event.MOVED_DOWN: -20,
+        event.WAITED: -20,
+        event.INVALID_ACTION: -50,
 
-        event.BOMB_DROPPED: -5,
+        event.BOMB_DROPPED: -20,
         event.BOMB_EXPLODED: 0,
 
-        event.CRATE_DESTROYED: 100,
+        event.CRATE_DESTROYED: 150,
         event.COIN_FOUND: 30,
-        event.COIN_COLLECTED: 200,
+        event.COIN_COLLECTED: 300,
 
         event.KILLED_OPPONENT: 0,
-        event.KILLED_SELF: -400,
+        event.KILLED_SELF: -600,
 
         event.GOT_KILLED: -300,
         event.OPPONENT_ELIMINATED: 200,
-        event.SURVIVED_ROUND: 50,
+        event.SURVIVED_ROUND: 100,
 
         # Custom events
 
@@ -193,7 +193,7 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
          MOVED_IN_SAFE_DIRECTION: 20,
         # GOT_OUT_OF_EXPLOSION_RADIUS: 20,
         # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
-         SURVIVED_EXPLOSION: 10,
+         SURVIVED_EXPLOSION: 5,
         # WALKED_INTO_EXPLOSION: -50,
         
         # General Movement
