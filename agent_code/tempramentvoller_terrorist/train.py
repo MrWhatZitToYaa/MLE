@@ -171,7 +171,7 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         event.BOMB_EXPLODED: 0,
 
         event.CRATE_DESTROYED: 100,
-        event.COIN_FOUND: 20,
+        event.COIN_FOUND: 30,
         event.COIN_COLLECTED: 100,
 
         event.KILLED_OPPONENT: 0,
@@ -184,7 +184,7 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         # Custom events
 
         # Collect coins
-        #COIN_DIST_DECREASED: 5,
+        # COIN_DIST_DECREASED: 5,
         
 		#BOMB_DIST_INCREASED: 10,
         

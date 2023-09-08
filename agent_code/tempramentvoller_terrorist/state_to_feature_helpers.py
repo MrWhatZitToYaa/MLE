@@ -28,9 +28,9 @@ def get_safe_tiles(reachable_tiles, bombs, field):
                     safe_tiles.append(tile)
     return safe_tiles
 
-def get_direction_to_closetes_safe_tile(player, safe_tiles):
-    closest_safe_tileX, closest_safe_tileY = find_min_safe_tile_relative_coordinate(safe_tiles, player)
-    return get_directions_for_object(closest_safe_tileX, closest_safe_tileY)
+def get_closetes_safe_tile(player, safe_tiles):
+    closest_safe_tile_X, closest_safe_tile_Y = find_min_safe_tile_coordinate(safe_tiles, player)
+    return (closest_safe_tile_X, closest_safe_tile_Y)
 
 def get_area_around_player(field, explosions, player):
     field = field.flatten()
@@ -112,6 +112,20 @@ def find_min_safe_tile_relative_coordinate(safe_tiles, player):
             min_y = tileY - playerY
     return (min_x, min_y)
 
+def find_min_safe_tile_coordinate(safe_tiles, player):
+    playerX, playerY = get_player_coordinates(player)
+
+    x = ARENA_WIDTH
+    y = ARENA_LENGTH
+    min_d = ARENA_WIDTH + ARENA_LENGTH
+    for (tileX, tileY) in safe_tiles:
+        d = abs(tileX - playerX) + abs(tileY - playerY)
+        if d < min_d:
+            min_d = d
+            x = tileX
+            y = tileY
+    return (x, y)
+
 def find_min_coin_distance(coins: list, playerX, playerY):
     min_d = ARENA_WIDTH + ARENA_LENGTH
     for (coinX, coinY) in coins:
@@ -168,6 +182,20 @@ def get_directions_for_object(objectX, objectY):
             directionY = -1
   
     return (directionX, directionY)
+
+def get_direction_for_safe_tile(bombs, player, field):
+    if(within_explosion_radius(player, field, bombs)):
+         reachable_tiles = get_reachable_tiles(get_player_coordinates(player), field, 3)
+         safe_tiles = get_safe_tiles(reachable_tiles, bombs, field)
+    
+	# No safe tile
+    if(len(safe_tiles) == 0):
+        return (list_of_steps.NODIR.value,)
+    # Get closest safe tile
+    safe_tile_X, safe_tile_Y = get_closetes_safe_tile(player, safe_tiles)
+
+    direction = get_direction_for_object(safe_tile_X, safe_tile_Y, player, field)
+    return direction
 
 def get_direction_for_coin(coins, player, field):
     coin_X, coin_Y = find_min_coin_coordinate(coins, player)

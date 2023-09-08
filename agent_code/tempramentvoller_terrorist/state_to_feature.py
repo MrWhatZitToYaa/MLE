@@ -251,7 +251,10 @@ def state_to_features_V17(game_state: dict) -> int:
     feature_vector = get_area_around_player(field, explosions, player)
     
 	# Add direction to nearest coin to feature_vector
-    feature_vector += get_direction_for_coin(coins, player, field)	
+    feature_vector += get_direction_for_coin(coins, player, field)
+    
+	# Add direction to run away from bomb
+    feature_vector += get_direction_for_safe_tile(bombs, player, field)
 
 	# Return hash value of feature_vector
     key = hash(feature_vector)
