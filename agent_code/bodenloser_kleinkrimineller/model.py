@@ -89,7 +89,7 @@ class QLearning:
         self.q_table[state][actionNum] = new_q_value
     
 
-    def train(self, transitions, round_number):
+    def train(self, transitions):
         self.update_q_table_constrained(transitions, len(transitions))       
 
     def update_last_positions(self, position: tuple):

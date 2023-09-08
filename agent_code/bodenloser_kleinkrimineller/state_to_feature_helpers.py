@@ -137,20 +137,21 @@ def get_direction_for_object(objectX, objectY):
     directionX = -2
     directionY = -2
     
-    if(objectX < 0):
-        directionX = 1
-    if(objectX == 0):
-        directionX = 0
-    if(objectX > 0):
-        directionX = -1
-        
-    if(objectY < 0):
-        directionY = 1
-    if(objectY == 0):
-        directionY = 0
-    if(objectY > 0):
-        directionY = -1
-        
+    if(objectX != ARENA_LENGTH and objectY != ARENA_WIDTH):
+        if(objectX < 0):
+            directionX = 1
+        if(objectX == 0):
+             directionX = 0
+        if(objectX > 0):
+             directionX = -1
+             
+        if(objectY < 0):
+            directionY = 1
+        if(objectY == 0):
+            directionY = 0
+        if(objectY > 0):
+            directionY = -1
+  
     return (directionX, directionY)
 
 def find_min_bomb_relative_coordinate(bomb: tuple, player):

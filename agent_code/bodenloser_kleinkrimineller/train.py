@@ -91,7 +91,7 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
 
 	# Only train if dequeue has n elemenets
     if len(self.transitions) == self.model.number_of_previous_states:
-        self.model.train(self.transitions, old_game_state["round"])
+        self.model.train(self.transitions)
     
 	# Calculate the total reward for this round
     self.model.total_reward += reward
@@ -119,11 +119,14 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     """
     
     self.logger.debug(f'Encountered event(s) {", ".join(map(repr, events))} in final step')
-    self.transitions.append(Transition(state_to_features(last_game_state), last_action, None, reward_from_events(self, events)))
+    self.transitions.append(Transition(state_to_features(last_game_state),
+                                       last_action,
+                                       None,
+                                       reward_from_events(self, events)))
 
 	# Train the remaining steps with reduced view into the future
     for i in range(len(self.transitions), 1, -1):
-        self.model.train(self.transitions, -1)
+        self.model.train(self.transitions)
         self.transitions.popleft()
         
 	# Decay the exploration probability
