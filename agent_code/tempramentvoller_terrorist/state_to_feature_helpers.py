@@ -184,6 +184,7 @@ def get_directions_for_object(objectX, objectY):
     return (directionX, directionY)
 
 def get_direction_for_safe_tile(bombs, player, field):
+    safe_tiles = []
     if(within_explosion_radius(player, field, bombs)):
          reachable_tiles = get_reachable_tiles(get_player_coordinates(player), field, 3)
          safe_tiles = get_safe_tiles(reachable_tiles, bombs, field)

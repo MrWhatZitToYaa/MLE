@@ -30,6 +30,10 @@ def appendCustomEvents(self, events, new_game_state, old_game_state):
         events.append(GOT_OUT_OF_EXPLOSION_RADIUS)
         self.logger.debug(f'Custom event occurred: {GOT_OUT_OF_EXPLOSION_RADIUS}')
         
+    if did_not_walk_into_explosion(old_game_state, events):
+        events.append(SURVIVED_EXPLOSION)
+        self.logger.debug(f'Custom event occurred: {SURVIVED_EXPLOSION}')
+        
     """
     if event.BOMB_DROPPED in events and not reachable_safe_tile_exists(new_game_state["self"][3], new_game_state["field"], new_game_state["bombs"]):        
         events.append(DROPPED_BOMB_WITH_NO_WAY_OUT)
@@ -113,6 +117,23 @@ def check_if_survived_explosion(old_state, new_state):
         return True
     else:
         return False
+    
+def did_not_walk_into_explosion(old_state, events):
+    area = get_area_around_player(old_state["field"], old_state["explosion_map"], old_state["self"])
+    explosion_was_nearby = False
+    
+    for i in area:
+        if(i == list_of_blocks.EXPLOSION0.value):
+            explosion_was_nearby = True
+            
+    for i in events:
+        if(i == 'KILLED_SELF' and explosion_was_nearby):
+            return False
+        
+    return True
+            
+            
+	
     
 def walked_into_explosion(new_state):
     new_coords = get_player_coordinates(new_state["self"])
