@@ -162,6 +162,29 @@ def find_min_crate_relative_coordinate(field, player):
             
     return (min_x, min_y)
 
+def find_nearest_crate_coordinate(field, player):
+    playerX, playerY = get_player_coordinates(player)
+    
+    x = ARENA_WIDTH
+    y = ARENA_LENGTH
+    min_d = ARENA_WIDTH + ARENA_LENGTH
+    
+	# Get all the crates from the field
+    crates = []
+    for x in range(ARENA_WIDTH):
+        for y in range(ARENA_LENGTH):
+            if field[x][y] == 1:
+                crates.append((x,y))
+
+    for (objX, objY) in crates:
+        d = abs(objX - playerX) + abs(objY - playerY)
+        if d < min_d:
+            min_d = d
+            x = objX
+            y = objY
+            
+    return (x, y)
+
 def get_directions_for_object(objectX, objectY):
     directionX = -2
     directionY = -2
@@ -209,6 +232,17 @@ def get_direction_for_coin(coins, player, field):
     direction = get_direction_for_object(coin_X, coin_Y, player, field)
     return direction
 
+def get_direction_for_crate(player, field):
+    crate_X, crate_Y = find_nearest_crate_coordinate(field, player)
+    
+	# None found or on top
+    playerX, playerY = get_player_coordinates(player)
+    if(crate_X == ARENA_LENGTH and crate_Y == ARENA_WIDTH) or (crate_X == playerX and crate_Y == playerY):
+        return (list_of_steps.NODIR.value,)
+
+    direction = get_direction_for_object(crate_X, crate_Y, player, field)
+    return direction
+
 def get_direction_for_object(objX, objY, player, field):
     path = find_path(field, get_player_coordinates(player), (objX, objY))
     
@@ -230,7 +264,7 @@ def get_direction_for_object(objX, objY, player, field):
 
 def find_path(field, start, end):
     def is_valid(x, y):
-        return 0 <= x < ARENA_WIDTH and 0 <= y < ARENA_LENGTH and field[x][y] != -1 and not visited[x][y]
+        return 0 <= x < ARENA_WIDTH and 0 <= y < ARENA_LENGTH and (field[x][y] == 0 or field[x][y] == field[end[0]][end[1]]) and not visited[x][y]
 
     visited = [[False for _ in range(17)] for _ in range(17)]
     parent = [[None for _ in range(17)] for _ in range(17)]

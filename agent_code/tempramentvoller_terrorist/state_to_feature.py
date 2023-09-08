@@ -255,6 +255,9 @@ def state_to_features_V17(game_state: dict) -> int:
     
 	# Add direction to run away from bomb
     feature_vector += get_direction_for_safe_tile(bombs, player, field)
+    
+	# Add direction for neearest crate
+    feature_vector += get_direction_for_crate(player, field)
 
 	# Return hash value of feature_vector
     key = hash(feature_vector)

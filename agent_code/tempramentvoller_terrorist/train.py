@@ -160,17 +160,17 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
     Returns total reward for a sequence of events
     """
     rewards = {
-        event.MOVED_LEFT: -20,
-        event.MOVED_RIGHT: -20,
-        event.MOVED_UP: -20,
-        event.MOVED_DOWN: -20,
-        event.WAITED: -20,
-        event.INVALID_ACTION: -50,
+        event.MOVED_LEFT: -5,
+        event.MOVED_RIGHT: -5,
+        event.MOVED_UP: -5,
+        event.MOVED_DOWN: -5,
+        event.WAITED: -5,
+        event.INVALID_ACTION: -20,
 
-        event.BOMB_DROPPED: -20,
+        event.BOMB_DROPPED: -5,
         event.BOMB_EXPLODED: 0,
 
-        event.CRATE_DESTROYED: 150,
+        event.CRATE_DESTROYED: 100,
         event.COIN_FOUND: 30,
         event.COIN_COLLECTED: 300,
 
