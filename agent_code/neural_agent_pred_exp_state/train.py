@@ -37,7 +37,8 @@ def setup_training(self):
     # Store Hyperparameters
     with open("./monitor_training/hyperparameters.pkl", "wb") as file:
         pickle.dump(hyperparameters, file)"""
-
+    self.total_reward = 0
+    self.total_rewards = []
 
 def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_state: dict, events: List[str]):
     """
@@ -84,28 +85,28 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     self.logger.debug(f'Encountered event(s) {", ".join(map(repr, events))} in final step')
 
     # Store the model
-    with open("lr-0-00005.pt", "wb") as file:
+    with open("my-saved-model.pt", "wb") as file:
         pickle.dump(self.model, file)
 
     # Store rewards
     # Add rewards of final steps, since there is no training
 
-    self.model.total_reward += reward_from_events(self, events)
-    self.total_rewards.append(self.model.total_reward)
+    self.total_reward += reward_from_events(self, events)
+    self.total_rewards.append(self.total_reward)
     with open("./monitor_training/total_rewards.pkl", "wb") as file:
         pickle.dump(self.total_rewards, file)
     # Set total rewards to 0 for next round
-    self.model.total_reward = 0
+    self.total_reward = 0
     '''
     # Store qTable size
     with open("./monitor_training/qTableSize.pkl", "wb") as file:
         pickle.dump(self.total_qTable_size, file)
-    '''
+    
     # Store exploration probability
     self.exploration_Probabilities.append(self.model.exploration_prob)
     with open("./monitor_training/exploration_probability.pkl", "wb") as file:
         pickle.dump(self.exploration_Probabilities, file)
-
+    '''
     self.transitions.append(
         Transition(state_to_features(last_game_state), last_action, None, reward_from_events(self, events)))
 
