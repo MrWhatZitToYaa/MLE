@@ -14,12 +14,12 @@ def setup(self):
     :param self: This object is passed to all callbacks and you can set arbitrary values.
     """
     self.count = 0
-    if self.train or not os.path.isfile("my-saved-model.pt"):
+    if self.train or not os.path.isfile("lr-0-00002.pt"):
         self.logger.info("Setting up model from scratch.")
         self.model = Model(INPUT_CHANNELS, NUM_OF_ACTIONS)
     else:
         self.logger.info("Loading model from saved state.")
-        with open("my-saved-model.pt", "rb") as file:
+        with open("lr-0-00002.pt", "rb") as file:
             self.model = pickle.load(file)
             
 	# Keeps track of the scores if evaluation mode is active

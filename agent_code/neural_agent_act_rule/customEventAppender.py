@@ -2,35 +2,40 @@ import events as event
 from .definitions import *
 from .state_to_feature_helpers import *
 
+
 def appendCustomEvents(self, events, new_game_state, old_game_state):
     new_position = get_player_coordinates(new_game_state["self"])
 
     if is_coin_dist_decreased(old_game_state, new_game_state):
-            events.append(COIN_DIST_DECREASED)
-            self.logger.debug(f'Custom event occurred: {COIN_DIST_DECREASED}')
-            
+        events.append(COIN_DIST_DECREASED)
+        self.logger.debug(f'Custom event occurred: {COIN_DIST_DECREASED}')
+
+    """     
     if is_bomb_dist_increased(old_game_state, new_game_state):
             events.append(BOMB_DIST_INCREASED)
             self.logger.debug(f'Custom event occurred: {BOMB_DIST_INCREASED}')
-    
 
-    """        
     if new_position in self.model.lastPositions:
           events.append(VISITED_SAME_PLACE)
           self.logger.debug(f'Custom event occurred: {VISITED_SAME_PLACE}')
-
     if stayed_within_explosion_radius(old_game_state, new_game_state):
         events.append(STAYED_WITHIN_EXPLOSION_RADIUS)
         self.logger.debug(f'Custom event occurred: {STAYED_WITHIN_EXPLOSION_RADIUS}')
+	"""
 
     if took_step_safe_direction(old_game_state, new_game_state):
         events.append(MOVED_IN_SAFE_DIRECTION)
         self.logger.debug(f'Custom event occurred: {MOVED_IN_SAFE_DIRECTION}')
-		
+
     if got_out_of_explosion_radius(old_game_state, new_game_state):
         events.append(GOT_OUT_OF_EXPLOSION_RADIUS)
         self.logger.debug(f'Custom event occurred: {GOT_OUT_OF_EXPLOSION_RADIUS}')
 
+    if did_not_walk_into_explosion(old_game_state, events):
+        events.append(SURVIVED_EXPLOSION)
+        self.logger.debug(f'Custom event occurred: {SURVIVED_EXPLOSION}')
+
+    """
     if event.BOMB_DROPPED in events and not reachable_safe_tile_exists(new_game_state["self"][3], new_game_state["field"], new_game_state["bombs"]):        
         events.append(DROPPED_BOMB_WITH_NO_WAY_OUT)
         self.logger.debug(f'Custom event occurred: {DROPPED_BOMB_WITH_NO_WAY_OUT}')
@@ -47,7 +52,6 @@ def appendCustomEvents(self, events, new_game_state, old_game_state):
     return events
 
 
-
 def is_coin_dist_decreased(old_state, new_state):
     """
     Checks whether the agent moved towards a coin.
@@ -56,6 +60,7 @@ def is_coin_dist_decreased(old_state, new_state):
     new_min_d = find_min_coin_distance(new_state["coins"], *new_state["self"][3])
 
     return new_min_d < old_min_d
+
 
 def is_bomb_dist_increased(old_state, new_state):
     """
@@ -66,6 +71,7 @@ def is_bomb_dist_increased(old_state, new_state):
 
     return new_max_d > old_max_d
 
+
 def took_step_safe_direction(old_state, new_state):
     """
     Checks whether the agent moved away from a dangerous bomb.
@@ -73,60 +79,37 @@ def took_step_safe_direction(old_state, new_state):
     bomb = find_closest_dangerous_bomb(old_state["bombs"], old_state["field"], old_state["self"][3])
     if bomb == None:
         return False
-    old_dist = np.linalg.norm(np.array((old_state["self"][3][0], old_state["self"][3][1])) - np.array((bomb[0][0], bomb[0][1])))
-    new_dist = np.linalg.norm(np.array((new_state["self"][3][0], new_state["self"][3][1])) - np.array((bomb[0][0], bomb[0][1])))
+    old_dist = np.linalg.norm(
+        np.array((old_state["self"][3][0], old_state["self"][3][1])) - np.array((bomb[0][0], bomb[0][1])))
+    new_dist = np.linalg.norm(
+        np.array((new_state["self"][3][0], new_state["self"][3][1])) - np.array((bomb[0][0], bomb[0][1])))
 
     return old_dist < new_dist
+
 
 def stayed_within_explosion_radius(old_state, new_state):
     """
     Checks whether the agent continues to be in the radius of an explosion.
     """
-    if not within_explosion_radius(old_state["self"][0][0], old_state["self"][0][1], old_state["field"], old_state["bombs"]): return False
+    if not within_explosion_radius(old_state["self"][0][0], old_state["self"][0][1], old_state["field"],
+                                   old_state["bombs"]):
+        return False
     else:
-        if within_explosion_radius(new_state["self"][0][0], new_state["self"][0][1], new_state["field"], new_state["bombs"]): return True
-        else: return False
+        if within_explosion_radius(new_state["self"][0][0], new_state["self"][0][1], new_state["field"],
+                                   new_state["bombs"]):
+            return True
+        else:
+            return False
+
 
 def got_out_of_explosion_radius(old_state, new_state):
-    if not within_explosion_radius(old_state["self"][0][0], old_state["self"][0][1], old_state["field"], old_state["bombs"]): return False
+    if not within_explosion_radius(old_state["self"], old_state["field"], old_state["bombs"]):
+        return False
     else:
-        if within_explosion_radius(new_state["self"][0][0], new_state["self"][0][1], new_state["field"], new_state["bombs"]): return False
-        else: return True
-
-""" def reachable_safe_tile_exists(player_coords, field):
-    x, y = player_coords[0], player_coords[1]
-
-    print(x, y, field)
-    for i in range(1, ARENA_WIDTH):
-        if y+i >= ARENA_WIDTH: break
-        if field[x+1][y+i] == 0:
+        if within_explosion_radius(new_state["self"], new_state["field"], new_state["bombs"]):
+            return False
+        else:
             return True
-        if field[x-1][y+i] == 0:
-            return True
-            
-    for i in range(1, ARENA_WIDTH):
-        if y-i >= ARENA_WIDTH: break
-        if field[x+1][y-i] == 0:
-            return True
-        if field[x-1][y-i] == 0:
-            return True
-    
-    for i in range(1, ARENA_LENGTH):
-        if x+i >= ARENA_LENGTH: break
-        if field[x+i][y+1] == 0:
-            return True
-        if field[x+i][y-1] == 0:
-            return True
-    
-    for i in range(1, ARENA_LENGTH):
-        if x-i >= ARENA_LENGTH: break
-        if field[x-i][y+1] == 0:
-            return True
-        if field[x-i][y-1] == 0:
-            return True
-    
-    return False """
-
 
 
 def reachable_safe_tile_exists(player_coords, field, bombs):
@@ -135,11 +118,13 @@ def reachable_safe_tile_exists(player_coords, field, bombs):
         return None
     radius = get_blast_coords(dangerous_bomb[0], field)
     reachable_tiles = get_reachable_tiles(player_coords, field)
-    
+
     for tile in reachable_tiles:
         if tile not in radius:
             return True
-    else: return False
+    else:
+        return False
+
 
 def check_if_survived_explosion(old_state, new_state):
     """
@@ -149,10 +134,27 @@ def check_if_survived_explosion(old_state, new_state):
         return True
     else:
         return False
-    
+
+
+def did_not_walk_into_explosion(old_state, events):
+    area = get_area_around_player(old_state["field"], old_state["explosion_map"], old_state["self"])
+    explosion_was_nearby = False
+
+    for i in area:
+        if (i == list_of_blocks.EXPLOSION0.value):
+            explosion_was_nearby = True
+
+    for i in events:
+        if (i == 'KILLED_SELF' and explosion_was_nearby):
+            return False
+
+    return True
+
+
 def walked_into_explosion(new_state):
     new_coords = get_player_coordinates(new_state["self"])
 
     if new_state["explosion_map"][new_coords[0]][new_coords[1]] != 0:
         return True
-    else: return False
+    else:
+        return False

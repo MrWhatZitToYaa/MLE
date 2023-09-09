@@ -84,30 +84,31 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
     self.logger.debug(f'Encountered event(s) {", ".join(map(repr, events))} in final step')
 
     # Store the model
-    with open("my-saved-model.pt", "wb") as file:
+    with open("lr-0-00005.pt", "wb") as file:
         pickle.dump(self.model, file)
 
     # Store rewards
     # Add rewards of final steps, since there is no training
-    '''
+
     self.model.total_reward += reward_from_events(self, events)
     self.total_rewards.append(self.model.total_reward)
     with open("./monitor_training/total_rewards.pkl", "wb") as file:
         pickle.dump(self.total_rewards, file)
     # Set total rewards to 0 for next round
     self.model.total_reward = 0
-
+    '''
     # Store qTable size
     with open("./monitor_training/qTableSize.pkl", "wb") as file:
         pickle.dump(self.total_qTable_size, file)
-
+    '''
     # Store exploration probability
     self.exploration_Probabilities.append(self.model.exploration_prob)
     with open("./monitor_training/exploration_probability.pkl", "wb") as file:
         pickle.dump(self.exploration_Probabilities, file)
-    '''
+
     self.transitions.append(
         Transition(state_to_features(last_game_state), last_action, None, reward_from_events(self, events)))
+
 
 def reward_from_events(self, event_sequence: List[str]) -> int:
     """
@@ -119,35 +120,35 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         event.MOVED_UP: -5,
         event.MOVED_DOWN: -5,
         event.WAITED: -5,
-        event.INVALID_ACTION: -50,
+        event.INVALID_ACTION: -20,
 
         event.BOMB_DROPPED: -5,
         event.BOMB_EXPLODED: 0,
 
-        event.CRATE_DESTROYED: 20,
-        event.COIN_FOUND: 50,
-        event.COIN_COLLECTED: 100,
+        event.CRATE_DESTROYED: 100,
+        event.COIN_FOUND: 30,
+        event.COIN_COLLECTED: 300,
 
         event.KILLED_OPPONENT: 0,
-        event.KILLED_SELF: -300,
+        event.KILLED_SELF: -600,
 
-        event.GOT_KILLED: -200,
+        event.GOT_KILLED: -300,
         event.OPPONENT_ELIMINATED: 200,
-        event.SURVIVED_ROUND: 50,
+        event.SURVIVED_ROUND: 100,
 
         # Custom events
 
         # Collect coins
-        COIN_DIST_DECREASED: 5,
+        # COIN_DIST_DECREASED: 5,
 
-        BOMB_DIST_INCREASED: 10,
+        # BOMB_DIST_INCREASED: 10,
 
         # Blow up Crates
         # STAYED_WITHIN_EXPLOSION_RADIUS: 0,
-        # MOVED_IN_SAFE_DIRECTION: 10,
-        # GOT_OUT_OF_EXPLOSION_RADIUS: 0,
+        MOVED_IN_SAFE_DIRECTION: 20,
+        # GOT_OUT_OF_EXPLOSION_RADIUS: 20,
         # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
-        # SURVIVED_EXPLOSION: 50,
+        SURVIVED_EXPLOSION: 5,
         # WALKED_INTO_EXPLOSION: -50,
 
         # General Movement
@@ -165,10 +166,10 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
 
 def train_step(self, old_state, action, new_state, reward):
     if action is not None:
-        action_mask = torch.zeros(len(ACTIONS), dtype=torch.int64)
-        action_mask[ACTIONS.index(action)] = 1
+        action_select = torch.zeros(len(ACTIONS), dtype=torch.int64)
+        action_select[ACTIONS.index(action)] = 1
 
-        state_action_value = torch.masked_select(self.model.forward(state_to_features(old_state)), action_mask.bool())
+        state_action_value = torch.masked_select(self.model.forward(state_to_features(old_state)), action_select.bool())
         next_state_action_value = self.model.forward(state_to_features(new_state)).max().unsqueeze(0)
         expected_state_action_value = (next_state_action_value * LEARNING_RATE) + reward
 
