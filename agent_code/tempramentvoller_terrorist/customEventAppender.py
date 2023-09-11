@@ -34,6 +34,10 @@ def appendCustomEvents(self, events, new_game_state, old_game_state):
         events.append(SURVIVED_EXPLOSION)
         self.logger.debug(f'Custom event occurred: {SURVIVED_EXPLOSION}')
         
+    if dropped_bomb_near_crate(old_game_state, new_game_state):
+        events.append(DROPPED_BOMB_NEAR_CRATE)
+        self.logger.debug(f'Custom event occurred: {DROPPED_BOMB_NEAR_CRATE}')
+        
     """
     if event.BOMB_DROPPED in events and not reachable_safe_tile_exists(new_game_state["self"][3], new_game_state["field"], new_game_state["bombs"]):        
         events.append(DROPPED_BOMB_WITH_NO_WAY_OUT)
@@ -131,9 +135,6 @@ def did_not_walk_into_explosion(old_state, events):
             return False
         
     return True
-            
-            
-	
     
 def walked_into_explosion(new_state):
     new_coords = get_player_coordinates(new_state["self"])
@@ -141,3 +142,30 @@ def walked_into_explosion(new_state):
     if new_state["explosion_map"][new_coords[0]][new_coords[1]] != 0:
         return True
     else: return False
+
+def dropped_bomb_near_crate(old_game_state, new_game_state):
+     area = get_area_around_player(old_game_state["field"], old_game_state["explosion_map"], old_game_state["self"])
+     nearCrate = False
+     # Bomb mmideately imminent to agent
+     for i in [1, 3, 5, 7]:
+              if(area[i] == list_of_blocks.CRATE.value):
+                   nearCrate = True
+
+     # Bomb was already dropped
+     playerX, playerY = get_player_coordinates(new_game_state["self"])
+     for i in old_game_state["bombs"]:
+              bombX = i[0][0]
+              bombY = i[0][1]
+              
+              if bombX == playerX and bombY == playerY:
+                  return False
+
+     if(nearCrate):
+          for i in new_game_state["bombs"]:
+              bombX = i[0][0]
+              bombY = i[0][1]
+              
+              if bombX == playerX and bombY == playerY:
+                  return True
+              
+     return False
