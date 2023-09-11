@@ -123,7 +123,7 @@ def check_if_survived_explosion(old_state, new_state):
         return False
     
 def did_not_walk_into_explosion(old_state, events):
-    area = get_area_around_player(old_state["field"], old_state["explosion_map"], old_state["self"])
+    area = get_area_around_player(old_state["field"], old_state["explosion_map"], old_state["self"], old_state["bombs"])
     explosion_was_nearby = False
     
     for i in area:
@@ -144,7 +144,7 @@ def walked_into_explosion(new_state):
     else: return False
 
 def dropped_bomb_near_crate(old_game_state, new_game_state):
-     area = get_area_around_player(old_game_state["field"], old_game_state["explosion_map"], old_game_state["self"])
+     area = get_area_around_player(old_game_state["field"], old_game_state["explosion_map"], old_game_state["self"], old_game_state["bombs"])
      nearCrate = False
      # Bomb mmideately imminent to agent
      for i in [1, 3, 5, 7]:

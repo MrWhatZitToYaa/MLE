@@ -32,7 +32,7 @@ def get_closetes_safe_tile(player, safe_tiles):
     closest_safe_tile_X, closest_safe_tile_Y = find_min_safe_tile_coordinate(safe_tiles, player)
     return (closest_safe_tile_X, closest_safe_tile_Y)
 
-def get_area_around_player(field, explosions, player):
+def get_area_around_player(field, explosions, player, bombs):
     field = field.flatten()
     # Transform arena
     transformed_field = [list_of_blocks.EMPTY.value if x == 0 else 
@@ -65,6 +65,26 @@ def get_area_around_player(field, explosions, player):
                     explosion_rel_X = x - playerX
                     explosion_rel_Y = y - playerY
                     area_around_player[explosion_rel_X+1][explosion_rel_Y+1] = list_of_blocks.EXPLOSION0.value
+                    
+	# Add lethal tiles to the area
+	# Optional propoal: only add lethal tiles when no safe tile, because, when safetile exists agaent
+	# knows danger
+    field = field.reshape(ARENA_LENGTH, ARENA_WIDTH)
+    
+    reachable_tiles = []
+    for dx, dy in [(-1,-1), (0,-1), (1,-1), (0,-1), (0,0), (0,1), (1,-1), (1,0), (1,1)]:
+            x = playerX + dx
+            y = playerY + dy
+            if(field[x][y] == 0 and (playerX != x and playerY != y)):
+                reachable_tiles.append((x,y))
+    
+
+    for bomb in bombs:
+        for tile in reachable_tiles:
+            if tile in get_blast_coords(bomb[0], field):
+                soon_danger_X = tile[0] - playerX
+                soon_danger_Y = tile[1] - playerY
+                area_around_player[soon_danger_X+1][soon_danger_Y+1] = list_of_blocks.DANGER.value
                     
 
 	# Add area_around_player to feature_vector

@@ -248,7 +248,7 @@ def state_to_features_V17(game_state: dict) -> int:
     feature_vector = ()
     
 	# Add area_around_player to feature_vector
-    feature_vector = get_area_around_player(field, explosions, player)
+    feature_vector = get_area_around_player(field, explosions, player, bombs)
     
 	# Add direction to nearest coin to feature_vector
     feature_vector += get_direction_for_coin(coins, player, field)
