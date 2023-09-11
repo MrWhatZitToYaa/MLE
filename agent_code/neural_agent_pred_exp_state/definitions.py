@@ -37,7 +37,7 @@ class list_of_blocks(Enum):
     NUMBER_OF_BLOCKS = 14
 
 # General model parameters
-# best settings so far: LEARNING_RATE = 0.00005, WEIGHT_DECAY = 2e-5
+# best settings so far: LEARNING_RATE = 0.00005, WEIGHT_DECAY = 2e-5, StFV14
 MAX_LEN_TRANSITIONS = 5
 INPUT_CHANNELS = ARENA_SIZE*NUM_FEATURES
 LEARNING_RATE = 0.00005
