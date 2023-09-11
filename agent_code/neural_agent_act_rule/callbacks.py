@@ -19,7 +19,7 @@ def setup(self):
         self.model = Model(INPUT_CHANNELS, NUM_OF_ACTIONS)
     else:
         self.logger.info("Loading model from saved state.")
-        with open("lr-0-00002.pt", "rb") as file:
+        with open("my-saved-model.pt", "rb") as file:
             self.model = pickle.load(file)
             
 	# Keeps track of the scores if evaluation mode is active
@@ -44,7 +44,7 @@ def act(self, game_state: dict) -> str:
     if self.train and random.random() < exploration_prob:
         return act_rule(self, game_state)
     self.logger.debug("Querying model for action.")
-    res = np.random.choice(ACTIONS, p=F.softmax(self.model.forward(state_to_features(game_state)), dim=0).detach().numpy())
+    res = np.random.choice(ACTIONS, p=F.softmax(self.model.forward(game_state), dim=0).detach().numpy())
     # print(res)
     return res
 

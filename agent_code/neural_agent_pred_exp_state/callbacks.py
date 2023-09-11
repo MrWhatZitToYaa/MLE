@@ -14,13 +14,12 @@ def setup(self):
     :param self: This object is passed to all callbacks and you can set arbitrary values.
     """
     self.count = 0
-    if self.train or not os.path.isfile("lr-0-00005.pt"):
+    if self.train or not os.path.isfile("my-saved-model.ptt"):
         self.logger.info("Setting up model from scratch.")
-        weights = np.random.rand(len(ACTIONS))
         self.model = Model(INPUT_CHANNELS, NUM_OF_ACTIONS)
     else:
         self.logger.info("Loading model from saved state.")
-        with open("lr-0-00005.pt", "rb") as file:
+        with open("my-saved-model.pt", "rb") as file:
             self.model = pickle.load(file)
             
 	# Keeps track of the scores if evaluation mode is active
@@ -45,6 +44,6 @@ def act(self, game_state: dict) -> str:
     if self.train and random.random() < exploration_prob:
         return np.random.choice(ACTIONS, p=PROBABILITIES_FOR_ACTIONS)
     self.logger.debug("Querying model for action.")
-    res = np.random.choice(ACTIONS, p=F.softmax(self.model.forward(state_to_features(game_state)), dim=0).detach().numpy())
-    # print(res)
+    res = np.random.choice(ACTIONS, p=F.softmax(self.model.forward(game_state), dim=0).detach().numpy())
+    #print('RESULT:', res)
     return res

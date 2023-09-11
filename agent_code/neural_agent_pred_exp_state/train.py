@@ -149,7 +149,7 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         MOVED_IN_SAFE_DIRECTION: 20,
         # GOT_OUT_OF_EXPLOSION_RADIUS: 20,
         # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
-        SURVIVED_EXPLOSION: 5,
+        SURVIVED_EXPLOSION: 10,
         # WALKED_INTO_EXPLOSION: -50,
 
         # General Movement
@@ -170,8 +170,8 @@ def train_step(self, old_state, action, new_state, reward):
         action_select = torch.zeros(len(ACTIONS), dtype=torch.int64)
         action_select[ACTIONS.index(action)] = 1
 
-        state_action_value = torch.masked_select(self.model.forward(state_to_features(old_state)), action_select.bool())
-        next_state_action_value = self.model.forward(state_to_features(new_state)).max().unsqueeze(0)
+        state_action_value = torch.masked_select(self.model.forward(old_state), action_select.bool())
+        next_state_action_value = self.model.forward(new_state).max().unsqueeze(0)
         expected_state_action_value = (next_state_action_value * LEARNING_RATE) + reward
 
         loss = self.model.criterion(state_action_value, expected_state_action_value)

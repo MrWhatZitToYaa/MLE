@@ -10,6 +10,7 @@ PROBABILITIES_FOR_ACTIONS = [1/6, 1/6, 1/6, 1/6, 1/6, 1/6]
 ARENA_LENGTH = 17
 ARENA_WIDTH = 17
 ARENA_SIZE = ARENA_LENGTH * ARENA_WIDTH
+NUM_FEATURES = 5
 
 class list_of_steps(Enum):
     UP =         0
@@ -38,9 +39,10 @@ class list_of_blocks(Enum):
 # General model parameters
 # best settings so far: LEARNING_RATE = 0.00005, WEIGHT_DECAY = 2e-5
 MAX_LEN_TRANSITIONS = 5
-INPUT_CHANNELS = 290
+INPUT_CHANNELS = ARENA_SIZE*NUM_FEATURES
 LEARNING_RATE = 0.00005
 WEIGHT_DECAY = 2e-5
+
 
 # Exploration probablility
 EXPLORATION_DECAY_ACTIVE = True

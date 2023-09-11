@@ -26,6 +26,8 @@ def setup_training(self):
     """
     # Example: Setup an array that will note transition tuples
     # (s, a, r, s')
+    self.total_reward = 0
+    self.total_rewards = []
     self.transitions = deque(maxlen=MAX_LEN_TRANSITIONS)
     self.model.train()
     """hyperparameters = [self.model.learning_rate,
@@ -148,7 +150,7 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         MOVED_IN_SAFE_DIRECTION: 20,
         # GOT_OUT_OF_EXPLOSION_RADIUS: 20,
         # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
-        SURVIVED_EXPLOSION: 5,
+        SURVIVED_EXPLOSION: 10,
         # WALKED_INTO_EXPLOSION: -50,
 
         # General Movement
@@ -167,7 +169,7 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
 def train_step(self, old_state, action):
     if action is not None and act_rule(self, old_state) is not None:
 
-        state_action_value = self.model.forward(state_to_features(old_state)).unsqueeze(0)
+        state_action_value = self.model.forward(old_state).unsqueeze(0)
 
         expected_state_action_value = torch.tensor(ACTIONS.index(act_rule(self, old_state)), dtype=torch.long).unsqueeze(0)
         # print(f"target: {target}")

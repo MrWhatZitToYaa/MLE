@@ -21,7 +21,7 @@ class Model(nn.Module):
         self.criterion = nn.CrossEntropyLoss()
 
     def forward(self, x):
-        #print(x)
+        x = state_to_features(x)
         output = self.model(torch.Tensor(x))
         
         return output
