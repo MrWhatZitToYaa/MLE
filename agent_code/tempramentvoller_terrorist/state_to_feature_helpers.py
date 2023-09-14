@@ -502,3 +502,19 @@ def check_for_neaby_explosion(player, explosions):
                     explosion_nearby = (1,)
                 
     return explosion_nearby
+
+def get_safe_bomb_drop(player, field):
+    # Player has no available bomb
+    if not player[2]:
+        return (False,)
+    
+    potential_bomb_coordinates = []
+    potential_bomb_coordinates.append((get_player_coordinates(player),1))
+    
+    direction = get_direction_for_safe_tile(potential_bomb_coordinates, player, field)
+    
+	# If there is no way out
+    if direction == list_of_steps.NODIR.value:
+        return (False,)
+    else:
+        return (True,)

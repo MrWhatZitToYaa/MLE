@@ -38,6 +38,9 @@ def appendCustomEvents(self, events, new_game_state, old_game_state):
         events.append(DROPPED_BOMB_NEAR_CRATE)
         self.logger.debug(f'Custom event occurred: {DROPPED_BOMB_NEAR_CRATE}')
         
+    if run_away_to_saftey_if_on_top_of_bomb(old_game_state, new_game_state):
+         events.append(RUN_AWAY_FROM_BOMB_IF_ON_TOP)
+         self.logger.debug(f'Custom event occurred: {RUN_AWAY_FROM_BOMB_IF_ON_TOP}')
     """
     if event.BOMB_DROPPED in events and not reachable_safe_tile_exists(new_game_state["self"][3], new_game_state["field"], new_game_state["bombs"]):        
         events.append(DROPPED_BOMB_WITH_NO_WAY_OUT)
@@ -169,3 +172,18 @@ def dropped_bomb_near_crate(old_game_state, new_game_state):
                   return True
               
      return False
+
+def run_away_to_saftey_if_on_top_of_bomb(old_game_state, new_game_state):
+    direction_safty = get_direction_for_safe_tile(old_game_state["bombs"], old_game_state["self"], old_game_state["field"])
+    
+    player_X_new, player_Y_new = get_player_coordinates(new_game_state["self"])
+    player_X_old, player_Y_old = get_player_coordinates(old_game_state["self"])
+    if(player_X_new == player_X_old and player_Y_new and player_Y_old):
+         direction_taken = list_of_steps.NODIR.value
+    else:
+         direction_taken = get_direction_for_object(player_X_new, player_Y_new, old_game_state["self"], old_game_state["field"])
+	
+    if(direction_safty == direction_taken):
+        return True
+    else:
+        return False

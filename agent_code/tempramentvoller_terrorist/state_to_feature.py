@@ -259,8 +259,8 @@ def state_to_features_V17(game_state: dict) -> int:
 	# Add direction for nearest crate
     feature_vector += get_direction_for_crate(player, field)
     
-	# Add if bomb can be dropped
-    feature_vector += (player[2],)
+	# Add if bomb can be dropped without dying
+    feature_vector += get_safe_bomb_drop(player, field)
 
 	# Return hash value of feature_vector
     key = hash(feature_vector)
