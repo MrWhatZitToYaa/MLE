@@ -239,6 +239,8 @@ def get_direction_for_safe_tile(bombs, player, field):
     safe_tile_X, safe_tile_Y = get_closetes_safe_tile(player, safe_tiles)
 
     direction = get_direction_for_object(safe_tile_X, safe_tile_Y, player, field)
+    if direction == None:
+        return (list_of_steps.NODIR.value,)
     return direction
 
 def get_direction_for_coin(coins, player, field):
@@ -250,6 +252,8 @@ def get_direction_for_coin(coins, player, field):
         return (list_of_steps.NODIR.value,)
 
     direction = get_direction_for_object(coin_X, coin_Y, player, field)
+    if direction == None:
+        return (list_of_steps.NODIR.value,)
     return direction
 
 def get_direction_for_crate(player, field):
@@ -261,24 +265,30 @@ def get_direction_for_crate(player, field):
         return (list_of_steps.NODIR.value,)
 
     direction = get_direction_for_object(crate_X, crate_Y, player, field)
+    if direction == None:
+        return (list_of_steps.NODIR.value,)
     return direction
 
 def get_direction_for_object(objX, objY, player, field):
     path = find_path(field, get_player_coordinates(player), (objX, objY))
-    
-    firstStepX, firstStepY = path[1]
-    playerX, playerY = get_player_coordinates(player)
-    
-    direction = (-1)
-	# Find the relative direction to the player
-    if(firstStepX - playerX > 0):
-        direction = list_of_steps.RIGHT.value
-    if(firstStepX - playerX < 0):
-        direction = list_of_steps.LEFT.value
-    if(firstStepY - playerY > 0):
-        direction = list_of_steps.DOWN.value
-    if(firstStepY - playerY < 0):
-        direction = list_of_steps.UP.value
+    direction = None
+    if path is not None:
+        if len(path) < 2:
+            firstStepX, firstStepY = path[0]
+        else:
+            firstStepX, firstStepY = path[1]
+        playerX, playerY = get_player_coordinates(player)
+
+        direction = (-1)
+        # Find the relative direction to the player
+        if(firstStepX - playerX > 0):
+            direction = list_of_steps.RIGHT.value
+        if(firstStepX - playerX < 0):
+            direction = list_of_steps.LEFT.value
+        if(firstStepY - playerY > 0):
+            direction = list_of_steps.DOWN.value
+        if(firstStepY - playerY < 0):
+            direction = list_of_steps.UP.value
         
     return (direction,)
 

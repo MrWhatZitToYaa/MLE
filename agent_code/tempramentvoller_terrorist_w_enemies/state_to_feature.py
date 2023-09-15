@@ -265,3 +265,46 @@ def state_to_features_V17(game_state: dict) -> int:
 	# Return hash value of feature_vector
     key = hash(feature_vector)
     return key
+
+
+def state_to_features_V18(game_state: dict) -> int:
+    """
+    Converts the game state into a number
+    Only player location, walls around him and nearest coin
+    Note: Same as V7, but use rel distance instead of direction
+    :param game_state:  A dictionary describing the current game board.
+    :return: int
+    """
+
+    field = game_state["field"]
+    bombs = game_state["bombs"]
+    explosions = game_state["explosion_map"]
+    coins = game_state["coins"]
+    player = game_state["self"]
+    enemies = game_state["other"]
+
+    # Stores all the relevant information that is passed on to the agent
+    feature_vector = ()
+
+    # Add area_around_player to feature_vector
+    feature_vector = get_area_around_player(field, explosions, player, bombs)
+
+    # Add direction to nearest coin to feature_vector
+    feature_vector += get_direction_for_coin(coins, player, field)
+
+    # Add direction to run away from bomb
+    feature_vector += get_direction_for_safe_tile(bombs, player, field)
+
+    # Add direction for nearest crate
+    feature_vector += get_direction_for_crate(player, field)
+
+    # Add coords of nearest enemy
+    #feature_vector += get_direction_for_enemy(enemies, player, field)
+    feature_vector += find_nearest_enemy_coordinate(enemies, player)
+
+    # Add if bomb can be dropped
+    feature_vector += (player[2],)
+
+    # Return hash value of feature_vector
+    key = hash(feature_vector)
+    return key

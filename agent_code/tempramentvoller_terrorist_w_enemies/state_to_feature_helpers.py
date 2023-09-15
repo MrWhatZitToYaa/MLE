@@ -205,6 +205,27 @@ def find_nearest_crate_coordinate(field, player):
             
     return (x, y)
 
+def find_nearest_enemy_coordinate(enemies, player):
+    playerX, playerY = get_player_coordinates(player)
+
+    x = ARENA_WIDTH
+    y = ARENA_LENGTH
+    min_d = ARENA_WIDTH + ARENA_LENGTH
+    enemy_coords = []
+    for enemy in enemies:
+        enemyX = enemy[3][0]
+        enemyY = enemy[3][1]
+        enemy_coords.append((enemyX, enemyY))
+
+    for (objX, objY) in enemy_coords:
+        d = abs(objX - playerX) + abs(objY - playerY)
+        if d < min_d:
+            min_d = d
+            x = objX
+            y = objY
+
+    return (x, y)
+
 def get_directions_for_object(objectX, objectY):
     directionX = -2
     directionY = -2
@@ -265,6 +286,18 @@ def get_direction_for_crate(player, field):
         return (list_of_steps.NODIR.value,)
 
     direction = get_direction_for_object(crate_X, crate_Y, player, field)
+    if direction == None:
+        return (list_of_steps.NODIR.value,)
+    return direction
+
+def get_direction_for_enemy(enemies, player, field):
+    enemyX, enemyY = find_nearest_enemy_coordinate(enemies, player)
+	# None found or on top
+    playerX, playerY = get_player_coordinates(player)
+    if(enemyX == ARENA_LENGTH and enemyY == ARENA_WIDTH) or (enemyX == playerX and enemyY == playerY):
+        return (list_of_steps.NODIR.value,)
+
+    direction = get_direction_for_object(enemyX, enemyY, player, field)
     if direction == None:
         return (list_of_steps.NODIR.value,)
     return direction
