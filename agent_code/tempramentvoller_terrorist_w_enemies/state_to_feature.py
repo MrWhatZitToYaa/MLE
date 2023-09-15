@@ -9,7 +9,7 @@ def state_to_features(game_state: dict) -> int:
      :param game_state:  A dictionary describing the current game board.
      :return: int
      """
-     return state_to_features_V17(game_state)
+     return state_to_features_V18(game_state)
 
 def state_to_features_V8(game_state: dict) -> int:
     """
@@ -281,7 +281,7 @@ def state_to_features_V18(game_state: dict) -> int:
     explosions = game_state["explosion_map"]
     coins = game_state["coins"]
     player = game_state["self"]
-    enemies = game_state["other"]
+    enemies = game_state["others"]
 
     # Stores all the relevant information that is passed on to the agent
     feature_vector = ()
