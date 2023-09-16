@@ -125,6 +125,7 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
                                        reward_from_events(self, events)))
 
 	# Train the remaining steps with reduced view into the future
+	# Review this because it may be that you should leave this away
     for i in range(len(self.transitions), 1, -1):
         self.model.train(self.transitions)
         self.transitions.popleft()
@@ -170,9 +171,9 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         event.BOMB_DROPPED: -20,
         event.BOMB_EXPLODED: 0,
 
-        event.CRATE_DESTROYED: 100,
+        event.CRATE_DESTROYED: 125,
         event.COIN_FOUND: 30,
-        event.COIN_COLLECTED: 300,
+        event.COIN_COLLECTED: 150,
 
         event.KILLED_OPPONENT: 0,
         event.KILLED_SELF: -600,
@@ -181,23 +182,20 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         event.OPPONENT_ELIMINATED: 200,
         event.SURVIVED_ROUND: 100,
 
-        # Custom events
-
         # Collect coins
         # COIN_DIST_DECREASED: 5,
-        
-		#BOMB_DIST_INCREASED: 10,
-        
+
         # Blow up Crates
          DROPPED_BOMB_NEAR_CRATE: 50,
-        # STAYED_WITHIN_EXPLOSION_RADIUS: 0,
-         MOVED_IN_SAFE_DIRECTION: 10,
         # GOT_OUT_OF_EXPLOSION_RADIUS: 20,
         # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
          SURVIVED_EXPLOSION: 5,
-        # WALKED_INTO_EXPLOSION: -50,
-		# General Movement
-        # VISITED_SAME_PLACE: -20
+		 RUN_AWAY_FROM_BOMB_IF_ON_TOP: 25,
+         
+		 # Safty
+         MOVED_IN_SAFE_DIRECTION: 15,
+		 MOVED_CLOSER_TO_SAVE_TILE: 10,
+         MOVED_AWAY_FROM_SAVE_TILE: -10
     }
     
     total_reward = 0

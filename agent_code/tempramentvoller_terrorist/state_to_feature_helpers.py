@@ -5,34 +5,19 @@ from collections import deque
 from .definitions import *
 
 def get_player_coordinates(player):
+    """
+    returns player coordiantes
+    :params player "self" in the state space
+    """
     playerX = player[3][0]
     playerY = player[3][1]
     
     return (playerX, playerY)
 
-def get_safe_tiles_from_specific_bomb(reachable_tiles, blast_coords):
-    safe_tiles = []
-    for tile in reachable_tiles:
-            if tile not in blast_coords:
-                safe_tiles.append(tile)
-
-    return safe_tiles
-
-def get_safe_tiles(reachable_tiles, bombs, field):
-    safe_tiles = []
-    if bombs == []: return reachable_tiles
-    else:
-        for bomb in bombs:
-            for tile in reachable_tiles:
-                if tile not in get_blast_coords(bomb[0], field):
-                    safe_tiles.append(tile)
-    return safe_tiles
-
-def get_closetes_safe_tile(player, safe_tiles):
-    closest_safe_tile_X, closest_safe_tile_Y = find_min_safe_tile_coordinate(safe_tiles, player)
-    return (closest_safe_tile_X, closest_safe_tile_Y)
-
 def get_area_around_player(field, explosions, player, bombs):
+    """
+    returns the 3x3 area arround the player, including deadly tiles and explosions
+    """
     field = field.flatten()
     # Transform arena
     transformed_field = [list_of_blocks.EMPTY.value if x == 0 else 
@@ -90,82 +75,37 @@ def get_area_around_player(field, explosions, player, bombs):
 	# Add area_around_player to feature_vector
     return tuple(area_around_player.flatten())
 
-def find_min_coin_relative_coordinate(coins: list, player):
-    playerX, playerY = get_player_coordinates(player)
-
-    min_x = ARENA_WIDTH
-    min_y = ARENA_LENGTH
-    min_d = ARENA_WIDTH + ARENA_LENGTH
-    for (coinX, coinY) in coins:
-        d = abs(coinX - playerX) + abs(coinY - playerY)
-        if d < min_d:
-            min_d = d
-            min_x = coinX - playerX
-            min_y = coinY - playerY
-    return (min_x, min_y)
+def get_safe_tiles(reachable_tiles, bombs, field):
+    """
+    return all tiles not in the blast radius of the bombs
+    """
+    safe_tiles = []
+    if bombs == []: return reachable_tiles
+    else:
+        for bomb in bombs:
+            for tile in reachable_tiles:
+                if tile not in get_blast_coords(bomb[0], field):
+                    safe_tiles.append(tile)
+    return safe_tiles
 
 def find_min_coin_coordinate(coins: list, player):
-    playerX, playerY = get_player_coordinates(player)
-
-    x = ARENA_WIDTH
-    y = ARENA_LENGTH
-    min_d = ARENA_WIDTH + ARENA_LENGTH
-    for (coinX, coinY) in coins:
-        d = abs(coinX - playerX) + abs(coinY - playerY)
-        if d < min_d:
-            min_d = d
-            x = coinX
-            y = coinY
-    return (x, y)
-
-def find_min_safe_tile_relative_coordinate(safe_tiles, player):
-    playerX, playerY = get_player_coordinates(player)
-
-    min_x = ARENA_WIDTH
-    min_y = ARENA_LENGTH
-    min_d = ARENA_WIDTH + ARENA_LENGTH
-    for (tileX, tileY) in safe_tiles:
-        d = abs(tileX - playerX) + abs(tileY - playerY)
-        if d < min_d:
-            min_d = d
-            min_x = tileX - playerX
-            min_y = tileY - playerY
-    return (min_x, min_y)
+    """
+    returns the coordiantes of the closest coin
+    """
+    coords = find_min_object_coordiantes(coins, player)   
+    return coords
 
 def find_min_safe_tile_coordinate(safe_tiles, player):
-    playerX, playerY = get_player_coordinates(player)
+    """
+    returns the coordiantes of the closest safe tile
+    """
+    coords = find_min_object_coordiantes(safe_tiles, player)   
+    return coords
 
-    x = ARENA_WIDTH
-    y = ARENA_LENGTH
-    min_d = ARENA_WIDTH + ARENA_LENGTH
-    for (tileX, tileY) in safe_tiles:
-        d = abs(tileX - playerX) + abs(tileY - playerY)
-        if d < min_d:
-            min_d = d
-            x = tileX
-            y = tileY
-    return (x, y)
-
-def find_min_coin_distance(coins: list, playerX, playerY):
-    min_d = ARENA_WIDTH + ARENA_LENGTH
-    for (coinX, coinY) in coins:
-        #d = np.linalg.norm(np.array((playerX, playerY)) - np.array((coinX, coinY)))
-        #d = cdist(np.array(playerX, playerY), np.array(coinX, coinY), 'cityblock')
-        # Manhattan dist
-        player_arr = np.array((playerX, playerY))
-        coin_arr = np.array((coinX, coinY))
-        d = sum(abs(player_arr-coin_arr) for player_arr, coin_arr in zip(player_arr,coin_arr))
-        if d < min_d:
-            min_d = d
-    return min_d
-
-def find_min_crate_relative_coordinate(field, player):
-    playerX, playerY = get_player_coordinates(player)
-    
-    min_x = ARENA_WIDTH
-    min_y = ARENA_LENGTH
-    min_d = ARENA_WIDTH + ARENA_LENGTH
-    
+def find_min_crate_coordinate(field, player):
+    """
+    returns the coordiantes of the closest crate
+    """
 	# Get all the crates from the field
     crates = []
     for x in range(ARENA_WIDTH):
@@ -173,60 +113,42 @@ def find_min_crate_relative_coordinate(field, player):
             if field[x][y] == 1:
                 crates.append((x,y))
 
-    for (objX, objY) in crates:
-        d = abs(objX - playerX) + abs(objY - playerY)
-        if d < min_d:
-            min_d = d
-            min_x = objX - playerX
-            min_y = objY - playerY
-            
-    return (min_x, min_y)
+    coords = find_min_object_coordiantes(crates, player)   
+    return coords
 
-def find_nearest_crate_coordinate(field, player):
+def find_min_object_coordiantes(obj: list, player):
+    """
+    returns the coordiantes of the closest object
+    """
     playerX, playerY = get_player_coordinates(player)
-    
+
     x = ARENA_WIDTH
     y = ARENA_LENGTH
     min_d = ARENA_WIDTH + ARENA_LENGTH
-    
-	# Get all the crates from the field
-    crates = []
-    for x in range(ARENA_WIDTH):
-        for y in range(ARENA_LENGTH):
-            if field[x][y] == 1:
-                crates.append((x,y))
-
-    for (objX, objY) in crates:
+    for (objX, objY) in obj:
         d = abs(objX - playerX) + abs(objY - playerY)
         if d < min_d:
             min_d = d
             x = objX
             y = objY
-            
     return (x, y)
 
-def get_directions_for_object(objectX, objectY):
-    directionX = -2
-    directionY = -2
-    
-    if(objectX != ARENA_LENGTH and objectY != ARENA_WIDTH):
-        if(objectX < 0):
-            directionX = 1
-        if(objectX == 0):
-             directionX = 0
-        if(objectX > 0):
-             directionX = -1
-             
-        if(objectY < 0):
-            directionY = 1
-        if(objectY == 0):
-            directionY = 0
-        if(objectY > 0):
-            directionY = -1
-  
-    return (directionX, directionY)
+def find_min_coin_distance(coins: list, playerX, playerY):
+    """
+    returns the distance of the closest coin
+    """
+    min_d = ARENA_WIDTH + ARENA_LENGTH
+    for (coinX, coinY) in coins:
+        d = abs(coinX - playerX) + abs(coinY - playerY)
+        if d < min_d:
+            min_d = d
+    return min_d
 
 def get_direction_for_safe_tile(bombs, player, field):
+    """
+    returns the direction of the closest safe tile
+    TODO: CHECK
+    """
     safe_tiles = []
     if(within_explosion_radius(player, field, bombs)):
          reachable_tiles = get_reachable_tiles(get_player_coordinates(player), field, 3)
@@ -234,9 +156,9 @@ def get_direction_for_safe_tile(bombs, player, field):
     
 	# No safe tile
     if(len(safe_tiles) == 0):
-        return (list_of_steps.NODIR.value,)
+        return (list_of_steps.NO_TARGET.value,)
     # Get closest safe tile
-    safe_tile_X, safe_tile_Y = get_closetes_safe_tile(player, safe_tiles)
+    safe_tile_X, safe_tile_Y = find_min_safe_tile_coordinate(safe_tiles, player)
 
     direction = get_direction_for_object(safe_tile_X, safe_tile_Y, player, field)
     if direction == None:
@@ -257,7 +179,7 @@ def get_direction_for_coin(coins, player, field):
     return direction
 
 def get_direction_for_crate(player, field):
-    crate_X, crate_Y = find_nearest_crate_coordinate(field, player)
+    crate_X, crate_Y = find_min_crate_coordinate(field, player)
     
 	# None found or on top
     playerX, playerY = get_player_coordinates(player)
@@ -502,3 +424,19 @@ def check_for_neaby_explosion(player, explosions):
                     explosion_nearby = (1,)
                 
     return explosion_nearby
+
+def get_safe_bomb_drop(player, field):
+    # Player has no available bomb
+    if not player[2]:
+        return (False,)
+    
+    potential_bomb_coordinates = []
+    potential_bomb_coordinates.append((get_player_coordinates(player),1))
+    
+    direction = get_direction_for_safe_tile(potential_bomb_coordinates, player, field)
+    
+	# If there is no way out
+    if direction == list_of_steps.NODIR.value:
+        return (False,)
+    else:
+        return (True,)
