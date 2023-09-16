@@ -182,24 +182,20 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         event.OPPONENT_ELIMINATED: 200,
         event.SURVIVED_ROUND: 100,
 
-        # Custom events
-
         # Collect coins
         # COIN_DIST_DECREASED: 5,
-        
-		#BOMB_DIST_INCREASED: 10,
-        
+
         # Blow up Crates
          DROPPED_BOMB_NEAR_CRATE: 50,
-        # STAYED_WITHIN_EXPLOSION_RADIUS: 0,
-         MOVED_IN_SAFE_DIRECTION: 15,
         # GOT_OUT_OF_EXPLOSION_RADIUS: 20,
         # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
          SURVIVED_EXPLOSION: 5,
-        # WALKED_INTO_EXPLOSION: -50,
-		# General Movement
-        # VISITED_SAME_PLACE: -20
-		RUN_AWAY_FROM_BOMB_IF_ON_TOP: 25
+		 RUN_AWAY_FROM_BOMB_IF_ON_TOP: 25,
+         
+		 # Safty
+         MOVED_IN_SAFE_DIRECTION: 15,
+		 MOVED_CLOSER_TO_SAVE_TILE: 10,
+         MOVED_AWAY_FROM_SAVE_TILE: -10
     }
     
     total_reward = 0

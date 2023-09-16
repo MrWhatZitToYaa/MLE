@@ -8,23 +8,18 @@ def appendCustomEvents(self, events, new_game_state, old_game_state):
     if is_coin_dist_decreased(old_game_state, new_game_state):
             events.append(COIN_DIST_DECREASED)
             self.logger.debug(f'Custom event occurred: {COIN_DIST_DECREASED}')
-            
-    """     
-    if is_bomb_dist_increased(old_game_state, new_game_state):
-            events.append(BOMB_DIST_INCREASED)
-            self.logger.debug(f'Custom event occurred: {BOMB_DIST_INCREASED}')
-            
-    if new_position in self.model.lastPositions:
-          events.append(VISITED_SAME_PLACE)
-          self.logger.debug(f'Custom event occurred: {VISITED_SAME_PLACE}')
-    if stayed_within_explosion_radius(old_game_state, new_game_state):
-        events.append(STAYED_WITHIN_EXPLOSION_RADIUS)
-        self.logger.debug(f'Custom event occurred: {STAYED_WITHIN_EXPLOSION_RADIUS}')
-	"""
 
     if took_step_safe_direction(old_game_state, new_game_state):
         events.append(MOVED_IN_SAFE_DIRECTION)
         self.logger.debug(f'Custom event occurred: {MOVED_IN_SAFE_DIRECTION}')
+        
+    if took_step_to_safe_tile(old_game_state, new_game_state):
+        events.append(MOVED_CLOSER_TO_SAVE_TILE)
+        self.logger.debug(f'Custom event occurred: {MOVED_CLOSER_TO_SAVE_TILE}')
+        
+    if took_step_away_from_safe_tile(old_game_state, new_game_state):
+        events.append(MOVED_AWAY_FROM_SAVE_TILE)
+        self.logger.debug(f'Custom event occurred: {MOVED_AWAY_FROM_SAVE_TILE}')
 		
     if got_out_of_explosion_radius(old_game_state, new_game_state):
         events.append(GOT_OUT_OF_EXPLOSION_RADIUS)
@@ -41,19 +36,6 @@ def appendCustomEvents(self, events, new_game_state, old_game_state):
     if run_away_to_saftey_if_on_top_of_bomb(old_game_state, new_game_state):
          events.append(RUN_AWAY_FROM_BOMB_IF_ON_TOP)
          self.logger.debug(f'Custom event occurred: {RUN_AWAY_FROM_BOMB_IF_ON_TOP}')
-    """
-    if event.BOMB_DROPPED in events and not reachable_safe_tile_exists(new_game_state["self"][3], new_game_state["field"], new_game_state["bombs"]):        
-        events.append(DROPPED_BOMB_WITH_NO_WAY_OUT)
-        self.logger.debug(f'Custom event occurred: {DROPPED_BOMB_WITH_NO_WAY_OUT}')
-
-    if check_if_survived_explosion(old_game_state, new_game_state):
-        events.append(SURVIVED_EXPLOSION)
-        self.logger.debug(f'Custom event occurred: {SURVIVED_EXPLOSION}')
-
-    if walked_into_explosion(new_game_state):
-        events.append(WALKED_INTO_EXPLOSION)
-        self.logger.debug(f'Custom event occurred: {WALKED_INTO_EXPLOSION}')
-    """
 
     return events
 
@@ -172,18 +154,25 @@ def dropped_bomb_near_crate(old_game_state, new_game_state):
                   return True
               
      return False
-
-def run_away_to_saftey_if_on_top_of_bomb(old_game_state, new_game_state):
+    
+def took_step_to_safe_tile(old_game_state, new_game_state):
     direction_safty = get_direction_for_safe_tile(old_game_state["bombs"], old_game_state["self"], old_game_state["field"])
     
     player_X_new, player_Y_new = get_player_coordinates(new_game_state["self"])
-    player_X_old, player_Y_old = get_player_coordinates(old_game_state["self"])
-    if(player_X_new == player_X_old and player_Y_new and player_Y_old):
-         direction_taken = list_of_steps.NODIR.value
-    else:
-         direction_taken = get_direction_for_object(player_X_new, player_Y_new, old_game_state["self"], old_game_state["field"])
+    direction_taken = get_direction_for_object(player_X_new, player_Y_new, old_game_state["self"], old_game_state["field"])
 	
     if(direction_safty == direction_taken):
+        return True
+    else:
+        return False
+    
+def took_step_away_from_safe_tile(old_game_state, new_game_state):
+    direction_safty = get_direction_for_safe_tile(old_game_state["bombs"], old_game_state["self"], old_game_state["field"])
+    
+    player_X_new, player_Y_new = get_player_coordinates(new_game_state["self"])
+    direction_taken = get_direction_for_object(player_X_new, player_Y_new, old_game_state["self"], old_game_state["field"])
+    
+    if(direction_safty != direction_taken and direction_safty != list_of_steps.NO_TARGET.value):
         return True
     else:
         return False
