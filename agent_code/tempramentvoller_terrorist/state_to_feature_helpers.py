@@ -404,7 +404,7 @@ def get_safe_bomb_drop(player, field):
     direction = get_direction_for_safe_tile(potential_bomb_coordinates, player, field)
     
 	# If there is no way out
-    if direction == list_of_steps.NODIR.value:
+    if direction == (list_of_steps.NO_TARGET.value,):
         return (False,)
     else:
         return (True,)

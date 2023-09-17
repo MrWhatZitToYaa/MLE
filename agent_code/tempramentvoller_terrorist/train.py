@@ -186,7 +186,7 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         # COIN_DIST_DECREASED: 5,
 
         # Blow up Crates
-        DROPPED_BOMB_NEAR_CRATE: 50,
+        DROPPED_BOMB_NEAR_CRATE: 30,
         # GOT_OUT_OF_EXPLOSION_RADIUS: 20,
         # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
         SURVIVED_EXPLOSION: 5,
