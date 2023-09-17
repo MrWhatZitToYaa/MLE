@@ -186,16 +186,16 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         # COIN_DIST_DECREASED: 5,
 
         # Blow up Crates
-         DROPPED_BOMB_NEAR_CRATE: 50,
+        DROPPED_BOMB_NEAR_CRATE: 50,
         # GOT_OUT_OF_EXPLOSION_RADIUS: 20,
         # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
-         SURVIVED_EXPLOSION: 5,
-		 RUN_AWAY_FROM_BOMB_IF_ON_TOP: 25,
+        SURVIVED_EXPLOSION: 5,
+		# RUN_AWAY_FROM_BOMB_IF_ON_TOP: 25,
          
 		 # Safty
-         MOVED_IN_SAFE_DIRECTION: 15,
-		 MOVED_CLOSER_TO_SAVE_TILE: 10,
-         MOVED_AWAY_FROM_SAVE_TILE: -10
+        MOVED_IN_SAFE_DIRECTION: 15,
+		MOVED_CLOSER_TO_SAVE_TILE: 10,
+        MOVED_AWAY_FROM_SAVE_TILE: -10
     }
     
     total_reward = 0

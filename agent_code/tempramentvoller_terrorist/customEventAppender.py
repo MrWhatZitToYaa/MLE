@@ -32,14 +32,13 @@ def appendCustomEvents(self, events, new_game_state, old_game_state):
     if dropped_bomb_near_crate(old_game_state, new_game_state):
         events.append(DROPPED_BOMB_NEAR_CRATE)
         self.logger.debug(f'Custom event occurred: {DROPPED_BOMB_NEAR_CRATE}')
-        
+    """
     if run_away_to_saftey_if_on_top_of_bomb(old_game_state, new_game_state):
          events.append(RUN_AWAY_FROM_BOMB_IF_ON_TOP)
          self.logger.debug(f'Custom event occurred: {RUN_AWAY_FROM_BOMB_IF_ON_TOP}')
+    """
 
     return events
-
-
 
 def is_coin_dist_decreased(old_state, new_state):
     """
