@@ -38,7 +38,7 @@ class list_of_blocks(Enum):
     NUMBER_OF_BLOCKS = 15
 
 # General model parameters
-LEARNING_RATE = 0.1
+LEARNING_RATE = 0.01
 DISCOUNT_FACTOR = 0.7
 # Has to be at least one
 NUMBER_OF_RELEVANT_STATES = 6
