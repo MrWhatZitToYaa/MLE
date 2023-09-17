@@ -50,15 +50,6 @@ def is_coin_dist_decreased(old_state, new_state):
 
     return new_min_d < old_min_d
 
-def is_bomb_dist_increased(old_state, new_state):
-    """
-    Checks whether the agent moved away from bomb.
-    """
-    old_max_d = get_min_bomb_relative_coordinate(old_state["bombs"], old_state["field"], old_state["self"])
-    new_max_d = get_min_bomb_relative_coordinate(new_state["bombs"], new_state["field"], new_state["self"])
-
-    return new_max_d > old_max_d
-
 def took_step_safe_direction(old_state, new_state):
     """
     Checks whether the agent moved away from a dangerous bomb.

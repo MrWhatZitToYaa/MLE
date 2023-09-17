@@ -147,7 +147,6 @@ def find_min_coin_distance(coins: list, playerX, playerY):
 def get_direction_for_safe_tile(bombs, player, field):
     """
     returns the direction of the closest safe tile
-    TODO: CHECK
     """
     safe_tiles = []
     if(within_explosion_radius(player, field, bombs)):
@@ -160,48 +159,56 @@ def get_direction_for_safe_tile(bombs, player, field):
     # Get closest safe tile
     safe_tile_X, safe_tile_Y = find_min_safe_tile_coordinate(safe_tiles, player)
 
+	# Get direction for safe tile
     direction = get_direction_for_object(safe_tile_X, safe_tile_Y, player, field)
-    if direction == None:
-        return (list_of_steps.NODIR.value,)
+    
     return direction
 
 def get_direction_for_coin(coins, player, field):
+    """
+    returns the direction to the closest coin
+    """
     coin_X, coin_Y = find_min_coin_coordinate(coins, player)
     
-	# None found or on top
-    playerX, playerY = get_player_coordinates(player)
-    if(coin_X == ARENA_LENGTH and coin_Y == ARENA_WIDTH) or (coin_X == playerX and coin_Y == playerY):
-        return (list_of_steps.NODIR.value,)
+	# None found
+    if(coin_X == ARENA_LENGTH and coin_Y == ARENA_WIDTH):
+        return (list_of_steps.NO_TARGET.value,)
 
+	# Get direction for coin
     direction = get_direction_for_object(coin_X, coin_Y, player, field)
-    if direction == None:
-        return (list_of_steps.NODIR.value,)
+    
     return direction
 
 def get_direction_for_crate(player, field):
+    """
+    returns the direction to the closest crate
+    """
     crate_X, crate_Y = find_min_crate_coordinate(field, player)
     
-	# None found or on top
+	# None found
     playerX, playerY = get_player_coordinates(player)
-    if(crate_X == ARENA_LENGTH and crate_Y == ARENA_WIDTH) or (crate_X == playerX and crate_Y == playerY):
-        return (list_of_steps.NODIR.value,)
+    if(crate_X == ARENA_LENGTH and crate_Y == ARENA_WIDTH):
+        return (list_of_steps.NO_TARGET.value,)
 
     direction = get_direction_for_object(crate_X, crate_Y, player, field)
-    if direction == None:
-        return (list_of_steps.NODIR.value,)
     return direction
 
 def get_direction_for_object(objX, objY, player, field):
+    """
+    returns the direction to an object
+    """
     path = find_path(field, get_player_coordinates(player), (objX, objY))
-    direction = None
+    
     if path is not None:
-        if len(path) < 2:
+        if len(path) == 1:
+            # On top of object
             firstStepX, firstStepY = path[0]
         else:
+            # First step direction
             firstStepX, firstStepY = path[1]
-        playerX, playerY = get_player_coordinates(player)
 
-        direction = (-1)
+        direction = list_of_steps.NODIR.value
+        playerX, playerY = get_player_coordinates(player)
         # Find the relative direction to the player
         if(firstStepX - playerX > 0):
             direction = list_of_steps.RIGHT.value
@@ -211,10 +218,15 @@ def get_direction_for_object(objX, objY, player, field):
             direction = list_of_steps.DOWN.value
         if(firstStepY - playerY < 0):
             direction = list_of_steps.UP.value
+    else:
+        direction = list_of_steps.NO_TARGET.value
         
     return (direction,)
 
 def find_path(field, start, end):
+    """
+    BSF path finding algorithm
+    """
     def is_valid(x, y):
         return 0 <= x < ARENA_WIDTH and 0 <= y < ARENA_LENGTH and (field[x][y] == 0 or field[x][y] == field[end[0]][end[1]]) and not visited[x][y]
 
@@ -245,31 +257,10 @@ def find_path(field, start, end):
 
     return None
 
-def find_min_bomb_relative_coordinate(bomb: tuple, player):
-    playerX, playerY = get_player_coordinates(player)
-    bombX, bombY = bomb[0]
-
-    min_x = bombX - playerX
-    min_y = bombY - playerY
-    
-    return (min_x, min_y)
-
-def get_min_bomb_relative_coordinate(bombs, field, player):
-    playerX, playerY = get_player_coordinates(player)
-    dangerous_bomb = find_closest_dangerous_bomb(bombs, field, (playerX, playerY))
-    
-	# Add distance to dangerous bomb
-    bombDistX = ARENA_WIDTH
-    bombDistY = ARENA_LENGTH
-	
-    if dangerous_bomb == None:
-        pass
-    else:
-        bombDistX, bombDistY = find_min_bomb_relative_coordinate(dangerous_bomb, player)
-        
-    return (bombDistX, bombDistY)
-
 def get_blast_coords(bomb_coords, field):
+    """
+    returns blast coordiantes of bomb
+    """
     x, y = bomb_coords[0], bomb_coords[1]
     blast_coords = [(x, y)]
 
@@ -305,7 +296,7 @@ def within_explosion_radius(player, field, bombs):
 
 def find_closest_dangerous_bomb(bombs, field, player_coords):
     """
-    This finds a bomb wihtin whose radius the agent is. IMPORTANT: There may be more than one dangerous bomb, this will only find the closest.
+    This finds a bomb within whose radius the agent is. IMPORTANT: There may be more than one dangerous bomb, this will only find the closest.
     """
     dangerous_bombs = []
     for bomb in bombs:
@@ -325,21 +316,6 @@ def find_closest_dangerous_bomb(bombs, field, player_coords):
             min_d = d
             closest_dangerous_bomb = bomb
     return closest_dangerous_bomb
-
-
-def check_for_explosions_around(explosions, player):
-    playerX, playerY = get_player_coordinates(player)
-    
-    explosion_near_player = False
-    
-    num_rows, num_cols = explosions.shape
-    for i in range(num_rows):
-        for j in range(num_cols):
-            if((abs(i - playerY) <= 1) and (abs(j - playerX) <= 1)):
-                if (explosions[i][j] != 0):
-                    explosion_near_player = True
-
-    return (explosion_near_player,)
 
 def get_reachable_tiles(player_coords, field, bomb_power):
    """
@@ -406,26 +382,18 @@ def get_reachable_tiles(player_coords, field, bomb_power):
    return reachable_tiles
 
 def cord_is_valid(x,y):
-    if x < 1 or x > ARENA_LENGTH - 2 or y < 1 or y > ARENA_WIDTH:
+    """
+    returns if cooridintae is valid
+    """
+    if x < 1 or x > ARENA_LENGTH - 2 or y < 1 or y > ARENA_WIDTH - 2:
         return False
     else:
         return True
-    
-def check_for_neaby_explosion(player, explosions):
-    playerX, playerY = get_player_coordinates(player)
-    
-    explosion_nearby = (0,)
-    
-    sizeX, sizeY = explosions.shape
-    for i in range(sizeX):
-        for j in range(sizeY):
-            if(explosions[i][j] != 0):
-                if(abs(playerX - i) + abs(playerY - j) <= 1):
-                    explosion_nearby = (1,)
-                
-    return explosion_nearby
 
 def get_safe_bomb_drop(player, field):
+    """
+    returns if dropping bomb is safe
+    """
     # Player has no available bomb
     if not player[2]:
         return (False,)
