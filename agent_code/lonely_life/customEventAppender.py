@@ -27,6 +27,10 @@ def appendCustomEvents(self, events, new_game_state, old_game_state):
         events.append(SURVIVED_EXPLOSION)
         self.logger.debug(f'Custom event occurred: {SURVIVED_EXPLOSION}')
         
+    if stayed_in_explosion_radius(old_game_state, new_game_state):
+        events.append(STAYED_IN_EXPLOSION_RADIUS)
+        self.logger.debug(f'Custom event occurred: {STAYED_IN_EXPLOSION_RADIUS}')
+        
     if dropped_bomb_near_crate(old_game_state, new_game_state):
         events.append(DROPPED_BOMB_NEAR_CRATE)
         self.logger.debug(f'Custom event occurred: {DROPPED_BOMB_NEAR_CRATE}')
@@ -108,6 +112,20 @@ def did_not_walk_into_explosion(old_state, events):
             return False
         
     return True
+
+def stayed_in_explosion_radius(old_state, events):
+    area = get_area_around_player(old_state["field"], old_state["explosion_map"], old_state["self"], old_state["bombs"])
+    explosion_was_nearby = False
+    
+    for i in area:
+        if(i == list_of_blocks.EXPLOSION0.value):
+            explosion_was_nearby = True
+            
+    for i in events:
+        if(i == 'KILLED_SELF' and explosion_was_nearby):
+            return True
+        
+    return False
     
 def walked_into_explosion(new_state):
     new_coords = get_player_coordinates(new_state["self"])
