@@ -9,9 +9,10 @@ def state_to_features(game_state: dict) -> int:
      :param game_state:  A dictionary describing the current game board.
      :return: int
      """
-     return state_to_features_V17(game_state)
+     return state_to_features_V18(game_state)
 
-def state_to_features_V17(game_state: dict) -> int:
+# Multiplayer approved
+def state_to_features_V18(game_state: dict) -> int:
     """
     Converts the game state into a number
     Only player location, walls arround him and nearest coin
@@ -25,12 +26,13 @@ def state_to_features_V17(game_state: dict) -> int:
     explosions = game_state["explosion_map"]
     coins = game_state["coins"]
     player = game_state["self"]
+    enemies = game_state["others"]
     
 	# Stores all the relevant information that is passed on to the agent
     feature_vector = ()
     
 	# Add area_around_player to feature_vector
-    feature_vector = get_area_around_player(field, explosions, player, bombs)
+    feature_vector = get_area_around_player(field, explosions, player, bombs, enemies)
     
 	# Add direction to nearest coin to feature_vector
     feature_vector += get_direction_for_coin(coins, player, field)
@@ -43,6 +45,9 @@ def state_to_features_V17(game_state: dict) -> int:
     
 	# Add if bomb can be dropped without dying
     feature_vector += get_safe_bomb_drop(player, field)
+    
+	# Add direction and distance to nearest enemy
+    # feature_vector += get_ememy_information(player, enemies, field)
 
 	# Return hash value of feature_vector
     key = hash(feature_vector)

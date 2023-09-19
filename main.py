@@ -133,7 +133,8 @@ def main(argv = None):
     play_parser.add_argument("--save-replay", const=True, default=False, action='store', nargs='?', help='Store the game as .pt for a replay')
     play_parser.add_argument("--match-name", help="Give the match a name")
     
-    play_parser.add_argument("--evaluate-performance", type=int, default=0, help="Evaluates the performance for agent number ; 0 for none")
+    play_parser.add_argument("--evaluate-performance", type=int, default=0, choices=[0, 1, 2, 3, 4],
+                             help="Evaluates the performance for first … agents ; 0 for none")
 
     play_parser.add_argument("--silence-errors", default=False, action="store_true", help="Ignore errors from agents")
 
@@ -180,7 +181,7 @@ def main(argv = None):
         for agent_num, agent_name in enumerate(args.agents):
             agents.append((agent_name,
                            len(agents) < args.train,
-                           args.evaluate_performance == agent_num+1,
+                           len(agents) < args.evaluate_performance,
                            len(agents) < args.continue_training))
 
         world = BombeRLeWorld(args, agents)

@@ -3,34 +3,44 @@ from .definitions import *
 from .state_to_feature_helpers import *
 
 def appendCustomEvents(self, events, new_game_state, old_game_state):
+    # Multiplayer approved
     if is_coin_dist_decreased(old_game_state, new_game_state):
             events.append(COIN_DIST_DECREASED)
             self.logger.debug(f'Custom event occurred: {COIN_DIST_DECREASED}')
 
+	# Multiplayer semi-approved, may need modification if performance is bad
     if took_step_safe_direction(old_game_state, new_game_state):
         events.append(MOVED_IN_SAFE_DIRECTION)
         self.logger.debug(f'Custom event occurred: {MOVED_IN_SAFE_DIRECTION}')
-        
+    
+	# Multiplayer approved
     if took_step_to_safe_tile(old_game_state, new_game_state):
         events.append(MOVED_CLOSER_TO_SAVE_TILE)
         self.logger.debug(f'Custom event occurred: {MOVED_CLOSER_TO_SAVE_TILE}')
-        
+    
+	# Multiplayer approved
     if took_step_away_from_safe_tile(old_game_state, new_game_state):
         events.append(MOVED_AWAY_FROM_SAVE_TILE)
         self.logger.debug(f'Custom event occurred: {MOVED_AWAY_FROM_SAVE_TILE}')
-		
+	
+	# Multiplayer approved
     if got_out_of_explosion_radius(old_game_state, new_game_state):
         events.append(GOT_OUT_OF_EXPLOSION_RADIUS)
         self.logger.debug(f'Custom event occurred: {GOT_OUT_OF_EXPLOSION_RADIUS}')
-        
+
+	# Multiplayer semi-approved, if no problems then fine, but not 100% sure if killed-self is agent 
+	# specific event or not. If yes (what I hope, then fine)
     if did_not_walk_into_explosion(old_game_state, events):
         events.append(SURVIVED_EXPLOSION)
         self.logger.debug(f'Custom event occurred: {SURVIVED_EXPLOSION}')
-        
+    
+	# Multiplayer semi-approved, if no problems then fine, but not 100% sure if killed-self is agent 
+	# specific event or not. If yes (what I hope, then fine)
     if stayed_in_explosion_radius(old_game_state, new_game_state):
         events.append(STAYED_IN_EXPLOSION_RADIUS)
         self.logger.debug(f'Custom event occurred: {STAYED_IN_EXPLOSION_RADIUS}')
-        
+    
+	# Multiplayer approved
     if dropped_bomb_near_crate(old_game_state, new_game_state):
         events.append(DROPPED_BOMB_NEAR_CRATE)
         self.logger.debug(f'Custom event occurred: {DROPPED_BOMB_NEAR_CRATE}')
@@ -100,7 +110,11 @@ def check_if_survived_explosion(old_state, new_state):
         return False
     
 def did_not_walk_into_explosion(old_state, events):
-    area = get_area_around_player(old_state["field"], old_state["explosion_map"], old_state["self"], old_state["bombs"])
+    area = get_area_around_player(old_state["field"],
+                                  old_state["explosion_map"],
+                                  old_state["self"],
+                                  old_state["bombs"],
+                                  old_state["others"])
     explosion_was_nearby = False
     
     for i in area:
@@ -114,7 +128,11 @@ def did_not_walk_into_explosion(old_state, events):
     return True
 
 def stayed_in_explosion_radius(old_state, events):
-    area = get_area_around_player(old_state["field"], old_state["explosion_map"], old_state["self"], old_state["bombs"])
+    area = get_area_around_player(old_state["field"],
+                                  old_state["explosion_map"],
+                                  old_state["self"],
+                                  old_state["bombs"],
+                                  old_state["others"])
     explosion_was_nearby = False
     
     for i in area:
@@ -128,22 +146,26 @@ def stayed_in_explosion_radius(old_state, events):
     return False
     
 def walked_into_explosion(new_state):
-    new_coords = get_player_coordinates(new_state["self"])
+    new_coords = get_agent_coordinates(new_state["self"])
 
     if new_state["explosion_map"][new_coords[0]][new_coords[1]] != 0:
         return True
     else: return False
 
 def dropped_bomb_near_crate(old_game_state, new_game_state):
-     area = get_area_around_player(old_game_state["field"], old_game_state["explosion_map"], old_game_state["self"], old_game_state["bombs"])
+     area = get_area_around_player(old_game_state["field"],
+                                   old_game_state["explosion_map"],
+                                   old_game_state["self"],
+                                   old_game_state["bombs"],
+                                   old_game_state["others"])
      nearCrate = False
-     # Bomb mmideately imminent to agent
-     for i in [1, 3, 5, 7]:
-              if(area[i] == list_of_blocks.CRATE.value):
+     # Bomb immedeately imminent to agent
+     for i in area:
+              if(i == list_of_blocks.CRATE.value):
                    nearCrate = True
 
      # Bomb was already dropped
-     playerX, playerY = get_player_coordinates(new_game_state["self"])
+     playerX, playerY = get_agent_coordinates(new_game_state["self"])
      for i in old_game_state["bombs"]:
               bombX = i[0][0]
               bombY = i[0][1]
@@ -164,7 +186,7 @@ def dropped_bomb_near_crate(old_game_state, new_game_state):
 def took_step_to_safe_tile(old_game_state, new_game_state):
     direction_safty = get_direction_for_safe_tile(old_game_state["bombs"], old_game_state["self"], old_game_state["field"])
     
-    player_X_new, player_Y_new = get_player_coordinates(new_game_state["self"])
+    player_X_new, player_Y_new = get_agent_coordinates(new_game_state["self"])
     direction_taken = get_direction_for_object(player_X_new, player_Y_new, old_game_state["self"], old_game_state["field"])
 	
     if(direction_safty == direction_taken):
@@ -175,7 +197,7 @@ def took_step_to_safe_tile(old_game_state, new_game_state):
 def took_step_away_from_safe_tile(old_game_state, new_game_state):
     direction_safty = get_direction_for_safe_tile(old_game_state["bombs"], old_game_state["self"], old_game_state["field"])
     
-    player_X_new, player_Y_new = get_player_coordinates(new_game_state["self"])
+    player_X_new, player_Y_new = get_agent_coordinates(new_game_state["self"])
     direction_taken = get_direction_for_object(player_X_new, player_Y_new, old_game_state["self"], old_game_state["field"])
     
     if(direction_safty != direction_taken and direction_safty != list_of_steps.NO_TARGET.value):

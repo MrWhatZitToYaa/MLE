@@ -97,7 +97,7 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
     self.model.total_reward += reward
 
 	# Save last player position
-    new_position = get_player_coordinates(new_game_state["self"])
+    new_position = get_agent_coordinates(new_game_state["self"])
     self.model.update_last_positions(new_position)
 
 def end_of_round(self, last_game_state: dict, last_action: str, events: List[str]):
@@ -175,7 +175,7 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         event.COIN_FOUND: 30,
         event.COIN_COLLECTED: 150,
 
-        event.KILLED_OPPONENT: 0,
+        event.KILLED_OPPONENT: 200,
         event.KILLED_SELF: -600,
 
         event.GOT_KILLED: -300,
