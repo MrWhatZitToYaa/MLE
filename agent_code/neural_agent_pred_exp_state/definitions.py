@@ -13,6 +13,7 @@ ARENA_SIZE = ARENA_LENGTH * ARENA_WIDTH
 NUM_FEATURES = 5
 
 class list_of_steps(Enum):
+    NO_TARGET = -1
     UP =         0
     DOWN =       1
     LEFT =       2
