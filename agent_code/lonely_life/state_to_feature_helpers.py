@@ -70,7 +70,7 @@ def get_area_around_player(field, explosions, player, bombs, enemies):
                 area_around_player[soon_danger_X+1][soon_danger_Y+1] = list_of_blocks.DANGER.value
                 
 	# Add enemies to arena DONT USE THIS
-	"""
+    """
     for enemy in enemies:
         enemy_X, enemy_Y = get_agent_coordinates(enemy)
         for tile in reachable_tiles:
@@ -90,10 +90,13 @@ def get_safe_tiles(reachable_tiles, bombs, field):
     safe_tiles = []
     if bombs == []: return reachable_tiles
     else:
-        for bomb in bombs:
-            for tile in reachable_tiles:
-                if tile not in get_blast_coords(bomb[0], field):
-                    safe_tiles.append(tile)
+        for tile in reachable_tiles:
+            in_blast_range = False
+            for bomb in bombs:
+                if tile in get_blast_coords(bomb[0], field):
+                    in_blast_range = True
+            if(not in_blast_range):
+                safe_tiles.append(tile)
     return safe_tiles
 
 def find_min_coin_coordinate(coins: list, player):
