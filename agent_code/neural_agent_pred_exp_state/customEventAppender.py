@@ -35,11 +35,11 @@ def appendCustomEvents(self, events, new_game_state, old_game_state):
         events.append(SURVIVED_EXPLOSION)
         self.logger.debug(f'Custom event occurred: {SURVIVED_EXPLOSION}')
 
-    """
-    if event.BOMB_DROPPED in events and not reachable_safe_tile_exists(new_game_state["self"][3], new_game_state["field"], new_game_state["bombs"]):        
+    if event.BOMB_DROPPED in events and not reachable_safe_tile_exists(new_game_state["self"][3], new_game_state["field"], new_game_state["bombs"]):
         events.append(DROPPED_BOMB_WITH_NO_WAY_OUT)
         self.logger.debug(f'Custom event occurred: {DROPPED_BOMB_WITH_NO_WAY_OUT}')
 
+    """
     if check_if_survived_explosion(old_game_state, new_game_state):
         events.append(SURVIVED_EXPLOSION)
         self.logger.debug(f'Custom event occurred: {SURVIVED_EXPLOSION}')
@@ -117,7 +117,7 @@ def reachable_safe_tile_exists(player_coords, field, bombs):
     if dangerous_bomb == None:
         return None
     radius = get_blast_coords(dangerous_bomb[0], field)
-    reachable_tiles = get_reachable_tiles(player_coords, field)
+    reachable_tiles = get_reachable_tiles(player_coords, field, 3)
 
     for tile in reachable_tiles:
         if tile not in radius:
