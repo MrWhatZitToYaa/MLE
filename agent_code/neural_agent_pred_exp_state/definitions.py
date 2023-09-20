@@ -35,7 +35,8 @@ class list_of_blocks(Enum):
     BOMB_TICK1 =    11
     BOMB_TICK2 =    12
     BOMB_TICK3 =    13
-    NUMBER_OF_BLOCKS = 14
+    DANGER	   =	14
+    NUMBER_OF_BLOCKS = 15
 
 # General model parameters
 # best settings so far: LEARNING_RATE = 0.00005, WEIGHT_DECAY = 2e-5, StFV14
