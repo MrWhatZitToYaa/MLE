@@ -36,11 +36,12 @@ def state_to_features_V18(game_state: dict) -> int:
     
 	# Add direction to nearest coin to feature_vector
     feature_vector += get_direction_for_coin(coins, player, field)
-    
-		# Debugging prupese
-    if(game_state["step"] == 3):
-         print("hi")
 
+    """
+	# Debugging purpuse
+    if(game_state["step"] == 3):
+         print("stop")
+    """
 	# Add direction to run away from bomb
     feature_vector += get_direction_for_safe_tile(bombs, player, field)
     
@@ -51,9 +52,7 @@ def state_to_features_V18(game_state: dict) -> int:
     feature_vector += get_safe_bomb_drop(player, field)
     
 	# Add direction and distance to nearest enemy
-    # feature_vector += get_ememy_information(player, enemies, field)
-
-
+    feature_vector += get_ememy_information(player, enemies, field)
 
 	# Return hash value of feature_vector
     key = hash(feature_vector)

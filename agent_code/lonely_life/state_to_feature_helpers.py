@@ -70,7 +70,6 @@ def get_area_around_player(field, explosions, player, bombs, enemies):
                 area_around_player[soon_danger_X+1][soon_danger_Y+1] = list_of_blocks.DANGER.value
                 
 	# Add enemies to arena DONT USE THIS
-    """
     for enemy in enemies:
         enemy_X, enemy_Y = get_agent_coordinates(enemy)
         for tile in reachable_tiles:
@@ -78,7 +77,6 @@ def get_area_around_player(field, explosions, player, bombs, enemies):
                 enemy_rel_X = enemy_X - playerX
                 enemy_rel_Y = enemy_Y - playerY
                 area_around_player[enemy_rel_X+1][enemy_rel_Y+1] = list_of_blocks.ENEMY.value
-	"""
     
 	# Add area_around_player to feature_vector
     return tuple(area_around_player.flatten())
@@ -530,7 +528,7 @@ def get_ememy_information(player, enemies, field):
     direction = get_direction_for_enemy(player, enemies, field)[0]
     distance = get_closest_enemy_distance(player, enemies)
     
-    if(distance < 3):
+    if(distance <= 3):
         nearby = True
     else:
         nearby = False
