@@ -3,7 +3,9 @@ Abschlussprojekt
 
 ## SARSA agents: 
 submitted for Tournament: lonely_life (n-step SARSA, classic)
+
 best coin collector: staubsauger (n-step SARSA, coin heaven)
+
 crates only without enemies: tempramentvoller_terrorist (n-step SARSA classic)
 
 unused:
