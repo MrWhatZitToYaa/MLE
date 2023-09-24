@@ -14,7 +14,7 @@ def setup(self):
     :param self: This object is passed to all callbacks and you can set arbitrary values.
     """
     self.count = 0
-    if self.train or not os.path.isfile("my-saved-model.ptt"):
+    if self.train or not os.path.isfile("my-saved-model.pt"):
         self.logger.info("Setting up model from scratch.")
         self.model = Model(INPUT_CHANNELS, NUM_OF_ACTIONS)
     else:
@@ -36,6 +36,7 @@ def act(self, game_state: dict) -> str:
     :return: The action to take as a string.
     """
 
+    # Exploration vs Exploitation
     self.count += 1
     exploration_prob = STARTING_EXPLORATION_PROBABILITY
     if self.count % DECAY_AFTER_ROUNDS == 0:
@@ -45,5 +46,4 @@ def act(self, game_state: dict) -> str:
         return np.random.choice(ACTIONS, p=PROBABILITIES_FOR_ACTIONS)
     self.logger.debug("Querying model for action.")
     res = np.random.choice(ACTIONS, p=F.softmax(self.model.forward(game_state), dim=0).detach().numpy())
-    #print('RESULT:', res)
     return res

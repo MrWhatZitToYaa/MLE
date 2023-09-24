@@ -30,16 +30,6 @@ def setup_training(self):
     self.total_rewards = []
     self.transitions = deque(maxlen=MAX_LEN_TRANSITIONS)
     self.model.train()
-    """hyperparameters = [self.model.learning_rate,
-                       self.model.discount_factor,
-                       self.model.exploration_prob,
-                       self.model.decay_active,
-                       self.model.epsilon_decay,
-                       self.model.epsilon_decay_after_rounds]
-
-    # Store Hyperparameters
-    with open("./monitor_training/hyperparameters.pkl", "wb") as file:
-        pickle.dump(hyperparameters, file)"""
 
 
 def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_state: dict, events: List[str]):
@@ -98,16 +88,7 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
         pickle.dump(self.total_rewards, file)
     # Set total rewards to 0 for next round
     self.total_reward = 0
-    '''
-    # Store qTable size
-    with open("./monitor_training/qTableSize.pkl", "wb") as file:
-        pickle.dump(self.total_qTable_size, file)
-    
-    # Store exploration probability
-    self.exploration_Probabilities.append(self.model.exploration_prob)
-    with open("./monitor_training/exploration_probability.pkl", "wb") as file:
-        pickle.dump(self.exploration_Probabilities, file)
-    '''
+
     self.transitions.append(
         Transition(state_to_features(last_game_state), last_action, None, reward_from_events(self, events)))
 
@@ -138,19 +119,12 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         event.OPPONENT_ELIMINATED: 200,
         event.SURVIVED_ROUND: 100,
 
-        # Collect coins
-        # COIN_DIST_DECREASED: 5,
-
         # Blow up Crates
         DROPPED_BOMB_NEAR_CRATE: 30,
-        # GOT_OUT_OF_EXPLOSION_RADIUS: 20,
-        # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
         SURVIVED_EXPLOSION: 5,
         STAYED_IN_EXPLOSION_RADIUS: -5,
-        # RUN_AWAY_FROM_BOMB_IF_ON_TOP: 25,
 
-        # Safty
-        # MOVED_IN_SAFE_DIRECTION: 15,
+        # Safety
         MOVED_CLOSER_TO_SAVE_TILE: 10,
         MOVED_AWAY_FROM_SAVE_TILE: -10
     }
@@ -166,13 +140,12 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
 
 def train_step(self, old_state, action):
     if action is not None and act_rule(self, old_state) is not None:
-
-        state_action_value = self.model.forward(old_state).unsqueeze(0)
-
+        old_state_action_value = self.model.forward(old_state).unsqueeze(0)
+        # expected action is what a rule based agent would have done
         expected_state_action_value = torch.tensor(ACTIONS.index(act_rule(self, old_state)), dtype=torch.long).unsqueeze(0)
-        # print(f"target: {target}")
-        # print(f"state_action_value: {state_action_value}")
-        loss = self.model.criterion(state_action_value, expected_state_action_value)
+
+        # log loss for plotting later
+        loss = self.model.criterion(old_state_action_value, expected_state_action_value)
         with open("loss_log.txt", "a") as loss_log:
             loss_log.write(str(loss.item()) + "\t")
 

@@ -9,8 +9,6 @@ def state_to_features(game_state: dict):
      :param game_state:  A dictionary describing the current game board.
      :return: int
      """
-     # TODO: train with sarsa features alone on different scenarios and plot
-     # TODO: train with NN features on different scenarios and plot
      return state_to_features_NN(game_state)
      #return state_to_features_SARSA(game_state)
 
@@ -140,14 +138,5 @@ def state_to_features_NN(game_state: dict):
         players_map[enemyX][enemyY] = list_of_blocks.ENEMY.value
 
     feature_vec[4,:,:] = players_map
-    #print('shape of feature vec:', feature_vec.shape)
-    #print('field_map:', transformed_field)
-    #print('bomb_map:', bomb_map)
-    #print('coin_map:', coin_map)
-    #print('players_map:', players_map)
-    #print('explosion_map:', explosion_map)
-
-    #print('features:',feature_vec.shape)
     feature_vec_flat = feature_vec.flatten()
-    #print(feature_vec_flat)
     return feature_vec_flat

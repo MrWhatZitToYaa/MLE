@@ -27,16 +27,7 @@ def setup_training(self):
     # (s, a, r, s')
     self.transitions = deque(maxlen=MAX_LEN_TRANSITIONS)
     self.model.train()
-    """hyperparameters = [self.model.learning_rate,
-                       self.model.discount_factor,
-                       self.model.exploration_prob,
-                       self.model.decay_active,
-                       self.model.epsilon_decay,
-                       self.model.epsilon_decay_after_rounds]
 
-    # Store Hyperparameters
-    with open("./monitor_training/hyperparameters.pkl", "wb") as file:
-        pickle.dump(hyperparameters, file)"""
     self.total_reward = 0
     self.total_rewards = []
 
@@ -60,7 +51,6 @@ def game_events_occurred(self, old_game_state: dict, self_action: str, new_game_
     self.logger.debug(f'Encountered game event(s) {", ".join(map(repr, events))} in step {new_game_state["step"]}')
     appendCustomEvents(self, events, new_game_state, old_game_state)
 
-    #action = self.model.forward(state_to_features(new_game_state))
     train_step(self, old_game_state, self_action, new_game_state, reward_from_events(self, events))
 
 
@@ -90,23 +80,12 @@ def end_of_round(self, last_game_state: dict, last_action: str, events: List[str
 
     # Store rewards
     # Add rewards of final steps, since there is no training
-
     self.total_reward += reward_from_events(self, events)
     self.total_rewards.append(self.total_reward)
     with open("./monitor_training/total_rewards.pkl", "wb") as file:
         pickle.dump(self.total_rewards, file)
     # Set total rewards to 0 for next round
     self.total_reward = 0
-    '''
-    # Store qTable size
-    with open("./monitor_training/qTableSize.pkl", "wb") as file:
-        pickle.dump(self.total_qTable_size, file)
-    
-    # Store exploration probability
-    self.exploration_Probabilities.append(self.model.exploration_prob)
-    with open("./monitor_training/exploration_probability.pkl", "wb") as file:
-        pickle.dump(self.exploration_Probabilities, file)
-    '''
     self.transitions.append(
         Transition(state_to_features(last_game_state), last_action, None, reward_from_events(self, events)))
 
@@ -137,19 +116,12 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
         event.OPPONENT_ELIMINATED: 200,
         event.SURVIVED_ROUND: 100,
 
-        # Collect coins
-        # COIN_DIST_DECREASED: 5,
-
         # Blow up Crates
         DROPPED_BOMB_NEAR_CRATE: 30,
-        # GOT_OUT_OF_EXPLOSION_RADIUS: 20,
-        # DROPPED_BOMB_WITH_NO_WAY_OUT: -100,
         SURVIVED_EXPLOSION: 5,
         STAYED_IN_EXPLOSION_RADIUS: -5,
-        # RUN_AWAY_FROM_BOMB_IF_ON_TOP: 25,
 
         # Safety
-        # MOVED_IN_SAFE_DIRECTION: 15,
         MOVED_CLOSER_TO_SAVE_TILE: 10,
         MOVED_AWAY_FROM_SAVE_TILE: -10
     }
@@ -167,15 +139,19 @@ def train_step(self, old_state, action, new_state, reward):
     if action is not None:
         action_select = torch.zeros(len(ACTIONS), dtype=torch.int64)
         action_select[ACTIONS.index(action)] = 1
+        # action value of old selected action
+        old_state_action_value = torch.masked_select(self.model.forward(old_state), action_select.bool())
+        # maximum of predicted new action probabilities
+        new_state_action_value = self.model.forward(new_state).max().unsqueeze(0)
 
-        state_action_value = torch.masked_select(self.model.forward(old_state), action_select.bool())
-        next_state_action_value = self.model.forward(new_state).max().unsqueeze(0)
-        expected_state_action_value = (next_state_action_value * LEARNING_RATE) + reward
+        expected_state_action_value = (new_state_action_value * LEARNING_RATE) + reward
 
-        loss = self.model.criterion(state_action_value, expected_state_action_value)
+        loss = self.model.criterion(old_state_action_value, expected_state_action_value)
 
+        # log loss for plotting later
         with open("loss_log.txt", "a") as loss_log:
             loss_log.write(str(loss.item()) + "\t")
+
         self.model.optimizer.zero_grad()
         loss.backward()
         self.model.optimizer.step()

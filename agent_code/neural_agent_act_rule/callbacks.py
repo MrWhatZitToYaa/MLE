@@ -14,7 +14,7 @@ def setup(self):
     :param self: This object is passed to all callbacks and you can set arbitrary values.
     """
     self.count = 0
-    if self.train or not os.path.isfile("lr-0-00002.pt"):
+    if self.train or not os.path.isfile("my-saved-model.pt"):
         self.logger.info("Setting up model from scratch.")
         self.model = Model(INPUT_CHANNELS, NUM_OF_ACTIONS)
     else:
@@ -50,6 +50,9 @@ def act(self, game_state: dict) -> str:
 
 
 def look_for_targets(free_space, start, targets, logger=None):
+    '''
+        see rule based agent
+    '''
     """Find direction of closest target that can be reached via free tiles.
 
     Performs a breadth-first search of the reachable free tiles until a target is encountered.
@@ -98,6 +101,9 @@ def look_for_targets(free_space, start, targets, logger=None):
         if parent_dict[current] == start: return current
         current = parent_dict[current]
 def act_rule(self, game_state):
+    '''
+        see rule based agent
+    '''
     # Check if we are in a different round
     """
     if game_state["round"] != self.current_round:

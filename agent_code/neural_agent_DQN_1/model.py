@@ -11,7 +11,6 @@ class Model(nn.Module):
     def __init__(self, input_channels, num_classes):
         super(Model, self).__init__()
         self.model = nn.Sequential(
-            #nn.Flatten(),
             nn.Linear(input_channels, 64),
             nn.ReLU(),
             nn.Linear(64, 32),
@@ -23,10 +22,7 @@ class Model(nn.Module):
         self.criterion = nn.MSELoss()
 
     def forward(self, x):
-        #print('before', x)
         x = state_to_features(x)
-        #print('after', x)
-        #print(x.shape)
         output = self.model(torch.Tensor(x))
         return output
     
