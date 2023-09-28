@@ -142,7 +142,8 @@ def train_step(self, old_state, action):
     if action is not None and act_rule(self, old_state) is not None:
         old_state_action_value = self.model.forward(old_state).unsqueeze(0)
         # expected action is what a rule based agent would have done
-        expected_state_action_value = torch.tensor(ACTIONS.index(act_rule(self, old_state)), dtype=torch.long).unsqueeze(0)
+        rule_based_action = act_rule(self, old_state)
+        expected_state_action_value = torch.tensor(ACTIONS.index(rule_based_action), dtype=torch.long).unsqueeze(0)
 
         # log loss for plotting later
         loss = self.model.criterion(old_state_action_value, expected_state_action_value)
