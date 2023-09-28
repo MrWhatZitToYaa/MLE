@@ -138,9 +138,10 @@ def reward_from_events(self, event_sequence: List[str]) -> int:
 def train_step(self, old_state, action, new_state, reward):
     if action is not None:
         action_select = torch.zeros(len(ACTIONS), dtype=torch.int64)
-        action_select[ACTIONS.index(action)] = 1
+        action_index = ACTIONS.index(action)
+        action_select[action_index] = 1
         # action value of old selected action
-        old_state_action_value = torch.masked_select(self.model.forward(old_state), action_select.bool())
+        old_state_action_value = self.model.forward(old_state)[action_index]
         # maximum of predicted new action probabilities
         new_state_action_value = self.model.forward(new_state).max().unsqueeze(0)
 
