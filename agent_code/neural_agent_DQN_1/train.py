@@ -144,7 +144,7 @@ def train_step(self, old_state, action, new_state, reward):
         old_state_action_value = self.model.forward(old_state)[action_index]
         # maximum of predicted new action probabilities
         new_state_action_value = self.model.forward(new_state).max().unsqueeze(0)
-
+        # estimate Q value
         expected_state_action_value = (new_state_action_value * LEARNING_RATE) + reward
 
         loss = self.model.criterion(old_state_action_value, expected_state_action_value)
