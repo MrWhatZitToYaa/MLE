@@ -162,3 +162,4 @@ cython_debug/
 #Custom gitignores
 .vscode/launch.json
 .vscode/launch tmp.json
+.vscode/launch copy.json
